@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+
+  server:
+    build: ./server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nyanspace
+    depends_on:
+      - mongo
+    command: ["npx", "nodemon", "--legacy-watch", "index.js"]
+
+  mongo:
+    image: mongo:8
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

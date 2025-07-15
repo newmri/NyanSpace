@@ -1,0 +1,45 @@
+# =============== 공통 ===============
+node_modules/
+.env
+*.log
+logs/
+dist/
+build/
+.cache/
+*.tsbuildinfo
+*.pid
+*.pid.lock
+pnpm-debug.log
+.vscode/
+.DS_Store
+Thumbs.db
+
+# =============== React (client) ===============
+client/node_modules/
+client/build/
+client/.env
+client/.env.local
+client/.cache/
+client/public/static/
+client/.eslintcache
+
+# =============== Express (server) ===============
+server/node_modules/
+server/dist/
+server/.env
+server/logs/
+server/*.log
+
+# =============== Docker ===============
+.docker/
+docker-compose.override.yml
+**/.dockerignore
+**/Dockerfile.dev
+**/Dockerfile.local
+docker-data/
+*.tar    # 이미지 백업 파일
+
+# =============== 기타 OS / 에디터 ===============
+.Trashes
+ehthumbs.db
+desktop.ini
