@@ -1,0 +1,26 @@
+.bottle-button {
+  margin: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  width: 120px;
+  height: 160px;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.bottle-button svg {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.bottle-button > div {
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-transform: none !important;
+}

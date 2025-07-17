@@ -17,7 +17,7 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
 import { Account } from "@toolpad/core/Account";
 import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
-import WaterDrinkPage from "../pages/WaterDrinkPage";
+import DrinkTrackerPage from "../pages/DrinkTrackerPage";
 
 const NAVIGATION = [
   {
@@ -25,7 +25,7 @@ const NAVIGATION = [
     title: "도구",
   },
   {
-    segment: "waterdrink",
+    segment: "drinktracker",
     title: "수분 충전소",
     icon: <WaterDropIcon />,
     children: [
@@ -63,8 +63,8 @@ function DemoPageContent({ pathname }) {
   let content;
 
   switch (pathname) {
-    case "/waterdrink/drink":
-      content = <WaterDrinkPage />;
+    case "/drinktracker/drink":
+      content = <DrinkTrackerPage />;
       break;
     default:
       content = <Typography>페이지를 찾을 수 없습니다: {pathname}</Typography>;
