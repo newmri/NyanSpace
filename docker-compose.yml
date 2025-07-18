@@ -6,6 +6,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - TZ=Asia/Seoul
     volumes:
       - ./client:/app
       - /app/node_modules
@@ -21,6 +22,7 @@ services:
       - /app/node_modules
     environment:
       - MONGO_URI=mongodb://mongo:27017/nyanspace
+      - TZ=Asia/Seoul
     depends_on:
       - mongo
     command: ["npx", "nodemon", "--legacy-watch", "index.js"]
@@ -32,6 +34,9 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Seoul
 
 volumes:
   mongo-data:

@@ -30,14 +30,15 @@ export default function DrinkTrackerPage() {
 
   const fetchHistories = async () => {
     try {
-      const res = await getHistories();
+      const today = new Date().toLocaleDateString({
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+
+      const res = await getHistories(today);
       const fetchedHistories = res.data;
       setHistories(fetchedHistories);
-      const totalAmount = fetchedHistories.reduce(
-        (sum, item) => sum + item.amount,
-        0
-      );
-      setCurrentAmount(totalAmount);
     } catch (err) {
       console.error(err);
     }
@@ -47,6 +48,11 @@ export default function DrinkTrackerPage() {
     fetchGoal();
     fetchHistories();
   }, []);
+
+  useEffect(() => {
+    const totalAmount = histories.reduce((sum, item) => sum + item.amount, 0);
+    setCurrentAmount(totalAmount);
+  }, [histories]);
 
   const handleAdd = async (amount) => {
     try {

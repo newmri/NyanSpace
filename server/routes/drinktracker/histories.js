@@ -2,10 +2,20 @@ const express = require("express");
 const router = express.Router();
 const History = require("../../models/drinktracker/history");
 
-// 전체 기록 조회
+// 기록 조회
 router.get("/", async (req, res) => {
   try {
-    const histories = await History.find().sort({ time: 1 });
+    let filter = {};
+    if (req.query.date) {
+      const date = new Date(req.query.date);
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+      filter.time = { $gte: start, $lte: end };
+    }
+
+    const histories = await History.find(filter).sort({ time: 1 });
     res.json(histories);
   } catch (err) {
     res.status(500).json({ message: err.message });

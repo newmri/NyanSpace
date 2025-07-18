@@ -8,8 +8,13 @@ export const saveGoal = (weight, goal) => {
   return axios.post(`${API_URL}/drinktracker/goal`, { weight, goal });
 };
 
-export const getHistories = () =>
-  axios.get(`${API_URL}/drinktracker/histories`);
+export const getHistories = (date) => {
+  const url = date
+    ? `${API_URL}/drinktracker/histories?date=${date}`
+    : `${API_URL}/drinktracker/histories`;
+
+  return axios.get(url);
+};
 
 export const addHistory = (amount) =>
   axios.post(`${API_URL}/drinktracker/histories`, amount);
