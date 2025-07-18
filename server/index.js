@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const drinktrackerGoalRoutes = require("./routes/drinktracker/goal");
 const drinktrackerHisotoriesRoutes = require("./routes/drinktracker/histories");
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 // API 라우터
+app.use("/api/drinktracker/goal", drinktrackerGoalRoutes);
 app.use("/api/drinktracker/histories", drinktrackerHisotoriesRoutes);
 
 app.listen(PORT, () => {

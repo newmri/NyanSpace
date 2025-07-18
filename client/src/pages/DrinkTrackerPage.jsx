@@ -1,14 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Stack, Chip } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import GoalProgress from "../components/GoalProgress";
 import DrinkHistory from "../components/DrinkHistory";
 import BottleButtons from "../components/BottleButtons";
-import { getHistories, addHistory, deleteHistory } from "../api/DrinkApi";
+import {
+  getGoal,
+  saveGoal,
+  getHistories,
+  addHistory,
+  deleteHistory,
+} from "../api/DrinkApi";
+import DrinkGoalModal from "../components/DrinkGoalModal";
 
 export default function DrinkTrackerPage() {
+  const [modalOpen, setModalOpen] = useState(false);
   const [currentAmount, setCurrentAmount] = useState(0);
   const [histories, setHistories] = useState([]);
-  const goalAmount = 2500;
+  const [goalState, setGoalState] = useState({});
+
+  const fetchGoal = async () => {
+    try {
+      const res = await getGoal();
+      const fetchedGoal = res.data || { weight: 0, goal: 2000 };
+      setGoalState(fetchedGoal);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchHistories = async () => {
     try {
@@ -26,6 +44,7 @@ export default function DrinkTrackerPage() {
   };
 
   useEffect(() => {
+    fetchGoal();
     fetchHistories();
   }, []);
 
@@ -48,6 +67,16 @@ export default function DrinkTrackerPage() {
     }
   };
 
+  const handleSaveGoal = async (weight, goal) => {
+    try {
+      await saveGoal(weight, goal);
+      setGoalState({ weight, goal });
+      setModalOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Box sx={{ textAlign: "center", p: 4 }}>
       <Typography variant="h4" gutterBottom>
@@ -57,9 +86,21 @@ export default function DrinkTrackerPage() {
         물을 충분히 마셔 건강을 지켜요!
       </Typography>
 
-      <GoalProgress current={currentAmount} goal={goalAmount} />
+      <GoalProgress
+        current={currentAmount}
+        goal={goalState.goal}
+        onSettingsClick={() => setModalOpen(true)}
+      />
+
       <DrinkHistory histories={histories} onDelete={handleDelete} />
       <BottleButtons onAdd={handleAdd} />
+
+      <DrinkGoalModal
+        open={modalOpen}
+        initialGoalState={goalState}
+        onClose={() => setModalOpen(false)}
+        onSave={handleSaveGoal}
+      />
     </Box>
   );
 }

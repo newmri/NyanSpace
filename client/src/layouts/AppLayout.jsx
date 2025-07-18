@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import Box from "@mui/material/Box";
+import { Container } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
@@ -10,7 +10,6 @@ import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
-import MonitorWeightIcon from "@mui/icons-material/MonitorWeight";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import SearchIcon from "@mui/icons-material/Search";
 import { AppProvider } from "@toolpad/core/AppProvider";
@@ -33,11 +32,6 @@ const NAVIGATION = [
         segment: "drink",
         title: "물 마시기",
         icon: <LocalDrinkIcon />,
-      },
-      {
-        segment: "weight",
-        title: "체중 설정",
-        icon: <MonitorWeightIcon />,
       },
     ],
   },
@@ -71,17 +65,9 @@ function DemoPageContent({ pathname }) {
   }
 
   return (
-    <Box
-      sx={{
-        py: 4,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        textAlign: "center",
-      }}
-    >
+    <Container maxWidth="lg" sx={{ py: 4, textAlign: "center" }}>
       {content}
-    </Box>
+    </Container>
   );
 }
 
