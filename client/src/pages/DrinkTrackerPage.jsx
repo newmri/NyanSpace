@@ -50,8 +50,8 @@ export default function DrinkTrackerPage() {
 
   const handleAdd = async (amount) => {
     try {
-      await addHistory({ amount });
-      fetchHistories();
+      const newHistory = await addHistory({ amount });
+      setHistories((prev) => [...prev, newHistory.data]);
     } catch (err) {
       console.error(err);
     }
@@ -61,7 +61,7 @@ export default function DrinkTrackerPage() {
     if (!window.confirm("정말 삭제할까요?")) return;
     try {
       await deleteHistory(id);
-      fetchHistories();
+      setHistories((prev) => prev.filter((history) => history._id !== id));
     } catch (err) {
       console.error(err);
     }

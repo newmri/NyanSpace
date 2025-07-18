@@ -33,7 +33,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     await History.findByIdAndDelete(id);
-    res.json({ message: "ACK" });
+    res.status(204).end();
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
