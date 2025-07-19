@@ -70,3 +70,9 @@ export function getDateRange(mode) {
 
   return { start: null, end: null };
 }
+
+export function getMonthWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const dayOfWeek = (firstDay.getDay() + 6) % 7; // 월요일=0, 일요일=6
+  return Math.ceil((date.getDate() + dayOfWeek) / 7);
+}

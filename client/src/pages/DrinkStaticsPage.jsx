@@ -12,7 +12,11 @@ import {
 } from "recharts";
 import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { HISTORY, drinkTypes, getHistoriesInRange } from "../api/DrinkApi";
-import { getDateRange } from "../utils/date";
+import {
+  getDateRange,
+  formatDateToLocalYYYYMMDD,
+  getMonthWeekNumber,
+} from "../utils/date";
 
 export default function DrinkStaticsPage() {
   const [viewMode, setViewMode] = useState("week");
@@ -55,7 +59,7 @@ export default function DrinkStaticsPage() {
         // 3) goal 기록을 날짜 문자열(key)별 맵으로 만듦
         const goalsByDate = {};
         allGoals.forEach(({ time, goal, weight }) => {
-          const dateStr = new Date(time).toISOString().slice(0, 10);
+          const dateStr = formatDateToLocalYYYYMMDD(new Date(time));
           goalsByDate[dateStr] = { goal, weight };
         });
 
@@ -63,7 +67,7 @@ export default function DrinkStaticsPage() {
         const resultGoals = [];
         let lastKnownGoal = null;
         dateList.forEach((dateObj) => {
-          const dateStr = dateObj.toISOString().slice(0, 10);
+          const dateStr = formatDateToLocalYYYYMMDD(dateObj);
           if (goalsByDate[dateStr]) {
             lastKnownGoal = goalsByDate[dateStr];
             resultGoals.push({ ...lastKnownGoal, time: dateObj });
@@ -79,7 +83,7 @@ export default function DrinkStaticsPage() {
         // 5) drinks 데이터 기준으로 날짜별 음료량 합산 준비
         const merged = {};
         dateList.forEach((dateObj) => {
-          const dateStr = dateObj.toISOString().slice(0, 10);
+          const dateStr = formatDateToLocalYYYYMMDD(dateObj);
           merged[dateStr] = { date: dateStr, goal: 0 };
           drinkTypes.forEach(({ type }) => {
             merged[dateStr][type] = 0;
@@ -88,7 +92,7 @@ export default function DrinkStaticsPage() {
 
         // 6) 보간한 goal 기록 반영
         resultGoals.forEach(({ time, goal, weight }) => {
-          const dateStr = new Date(time).toISOString().slice(0, 10);
+          const dateStr = formatDateToLocalYYYYMMDD(new Date(time));
           if (merged[dateStr]) {
             merged[dateStr].goal = goal;
             merged[dateStr].weight = weight;
@@ -97,14 +101,13 @@ export default function DrinkStaticsPage() {
 
         // 7) 음료 기록 병합
         drinks.forEach(({ time, type, amount }) => {
-          const dateStr = new Date(time).toISOString().slice(0, 10);
+          const dateStr = formatDateToLocalYYYYMMDD(new Date(time));
           if (!merged[dateStr]) return;
           if (drinkTypes.find((d) => d.type === type)) {
             merged[dateStr][type] += amount;
           }
         });
 
-        console.log(merged);
         setRawData(Object.values(merged));
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
@@ -128,8 +131,11 @@ export default function DrinkStaticsPage() {
           "0"
         )}`;
       if ("week" === viewMode) {
-        const week = Math.ceil((d.getDate() - d.getDay() + 1) / 7);
-        return `${d.getFullYear()}.W${week}`;
+        const week = getMonthWeekNumber(d);
+        return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(
+          2,
+          "0"
+        )} ${week}주차`;
       }
       return date;
     };
