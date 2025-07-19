@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Typography, IconButton, Paper, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Paper,
+  Stack,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { formatTime } from "../utils/date";
@@ -13,10 +19,6 @@ const formatAmount = (amount) => {
 export default function DrinkHistory({ histories, onEdit, onDelete }) {
   return (
     <Box sx={{ my: 3 }}>
-      <Typography variant="body2" gutterBottom>
-        마신 기록:
-      </Typography>
-
       <Box
         sx={{
           display: "flex",
