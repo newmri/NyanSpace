@@ -17,18 +17,22 @@ export const DRINK = {
   WATER: {
     type: "water",
     label: "물 💧",
+    color: "#00BFFF",
   },
   COFFEE: {
     type: "coffee",
     label: "커피 ☕",
+    color: "#6F4E37",
   },
   SODA: {
     type: "soda",
     label: "탄산 🥤",
+    color: "#FF6F00",
   },
   TEA: {
     type: "tea",
     label: "차 🍵",
+    color: "#228B22",
   },
 };
 
@@ -40,6 +44,12 @@ export const getHistories = (history, date) => {
     : `${API_URL}/drinktracker/histories/${history.type}`;
 
   return axios.get(url);
+};
+
+export const getHistoriesInRange = (history, start, end) => {
+  return axios.get(`${API_URL}/drinktracker/histories/${history.type}/range`, {
+    params: { start, end },
+  });
 };
 
 export const addHistory = (history, payload) =>

@@ -38,6 +38,38 @@ router.get("/", async (req, res) => {
   }
 });
 
+// 범위 기록 조회
+router.get("/range", async (req, res) => {
+  try {
+    const { start, end } = req.query;
+    if (!start || !end) {
+      return res.status(400).json({ message: "start, end 쿼리 필수" });
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999);
+
+    // 1. 기간 내 모든 기록 (오름차순)
+    const recordsInRange = await GoalHistory.find({
+      time: { $gte: startDate, $lte: endDate },
+    }).sort({ time: 1 });
+
+    // 2. 기간 시작 이전 최신 기록
+    const latestBeforeStart = await GoalHistory.findOne({
+      time: { $lt: startDate },
+    }).sort({ time: -1 });
+
+    // 3. 결과 객체로 묶어서 보내기
+    res.json({
+      latestBeforeStart,
+      recordsInRange,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // 기록 추가
 router.post("/", async (req, res) => {
   const { weight, goal } = req.body;

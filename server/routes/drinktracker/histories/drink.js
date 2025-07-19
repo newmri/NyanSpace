@@ -22,6 +22,28 @@ router.get("/", async (req, res) => {
   }
 });
 
+// 기록 범위 조회
+router.get("/range", async (req, res) => {
+  try {
+    const { start, end } = req.query;
+    if (!start || !end) {
+      return res.status(400).json({ message: "start, end 쿼리 필수" });
+    }
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999);
+
+    const histories = await DrinkHistory.find({
+      time: { $gte: startDate, $lte: endDate },
+    }).sort({ time: 1 });
+
+    res.json(histories);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // 기록 추가
 router.post("/", async (req, res) => {
   try {
