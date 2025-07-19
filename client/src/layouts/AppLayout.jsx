@@ -1,17 +1,15 @@
-import * as React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Container } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import LoginIcon from "@mui/icons-material/Login";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import TextField from "@mui/material/TextField";
-import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import SearchIcon from "@mui/icons-material/Search";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
@@ -19,6 +17,7 @@ import { Account } from "@toolpad/core/Account";
 import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
 import DrinkTrackerPage from "../pages/DrinkTrackerPage";
 import DrinkStaticsPage from "../pages/DrinkStaticsPage";
+import SignInModal from "../components/SignInModal";
 
 const NAVIGATION = [
   {
@@ -85,44 +84,6 @@ DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
-function ToolbarActionsSearch() {
-  return (
-    <Stack direction="row">
-      <Tooltip title="Search" enterDelay={1000}>
-        <div>
-          <IconButton
-            type="button"
-            aria-label="search"
-            sx={{
-              display: { xs: "inline", md: "none" },
-            }}
-          >
-            <SearchIcon />
-          </IconButton>
-        </div>
-      </Tooltip>
-      <TextField
-        label="Search"
-        variant="outlined"
-        size="small"
-        slotProps={{
-          input: {
-            endAdornment: (
-              <IconButton type="button" aria-label="search" size="small">
-                <SearchIcon />
-              </IconButton>
-            ),
-            sx: { pr: 0.5 },
-          },
-        }}
-        sx={{ display: { xs: "none", md: "inline-block" }, mr: 1 }}
-      />
-      <ThemeSwitcher />
-      <Account />
-    </Stack>
-  );
-}
-
 function SidebarFooter({ mini }) {
   return (
     <Typography
@@ -154,6 +115,26 @@ function AppLayout(props) {
 
   const demoWindow = window !== undefined ? window() : undefined;
 
+  const [signInModalOpen, setSignInModalOpen] = useState(false);
+
+  function ToolbarActions() {
+    return (
+      <Stack direction="row">
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<LoginIcon />}
+          sx={{ borderRadius: "20px", textTransform: "none" }}
+          onClick={() => setSignInModalOpen(true)}
+        >
+          로그인
+        </Button>
+        <ThemeSwitcher />
+        <Account />
+      </Stack>
+    );
+  }
+
   return (
     <DemoProvider window={demoWindow}>
       <AppProvider
@@ -165,13 +146,17 @@ function AppLayout(props) {
         <DashboardLayout
           slots={{
             appTitle: CustomAppTitle,
-            toolbarActions: ToolbarActionsSearch,
+            toolbarActions: ToolbarActions,
             sidebarFooter: SidebarFooter,
           }}
         >
           <DemoPageContent pathname={router.pathname} />
         </DashboardLayout>
       </AppProvider>
+      <SignInModal
+        open={signInModalOpen}
+        onClose={() => setSignInModalOpen(false)}
+      />
     </DemoProvider>
   );
 }
