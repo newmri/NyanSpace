@@ -25,14 +25,38 @@ router.get("/", async (req, res) => {
 // 기록 추가
 router.post("/", async (req, res) => {
   try {
-    const { amount } = req.body;
-    if (!amount) {
+    const { type, amount } = req.body;
+    if (!type || !amount) {
       return res.status(400).json({ message: "amount is required" });
     }
 
-    const history = new DrinkHistory({ amount, time: new Date() });
+    const history = new DrinkHistory({ type, amount });
     const savedHistory = await history.save();
     res.status(201).json(savedHistory);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 기록 수정
+router.put("/:id", async (req, res) => {
+  try {
+    const { type, amount } = req.body;
+    if (!type || typeof amount !== "number") {
+      return res.status(400).json({ message: "type과 amount는 필수입니다." });
+    }
+
+    const updated = await DrinkHistory.findByIdAndUpdate(
+      req.params.id,
+      { type, amount },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "기록을 찾을 수 없습니다." });
+    }
+
+    res.json(updated);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

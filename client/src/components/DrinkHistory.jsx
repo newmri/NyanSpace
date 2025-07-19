@@ -1,21 +1,16 @@
 import React from "react";
 import { Box, Typography, IconButton, Paper, Stack } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { formatTime } from "../utils/date";
+import { drinkTypes } from "../api/DrinkApi";
 
+// 용량 포맷 함수
 const formatAmount = (amount) => {
-  if (1000 <= amount) return `${amount / 1000}L`;
-  return `${amount}ml`;
+  return amount >= 1000 ? `${amount / 1000}L` : `${amount}ml`;
 };
 
-const formatTime = (isoString) => {
-  const date = new Date(isoString);
-  return date.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-export default function DrinkHistory({ histories, onDelete }) {
+export default function DrinkHistory({ histories, onEdit, onDelete }) {
   return (
     <Box sx={{ my: 3 }}>
       <Typography variant="body2" gutterBottom>
@@ -34,45 +29,55 @@ export default function DrinkHistory({ histories, onDelete }) {
           histories.map((history) => (
             <Paper
               key={history._id}
-              elevation={2}
+              elevation={3}
               sx={{
                 p: 2,
-                pt: 3,
-                borderRadius: 2,
-                minWidth: 85,
+                borderRadius: 3,
+                minWidth: 95,
+                maxWidth: 120,
                 bgcolor: "primary.main",
                 color: "primary.contrastText",
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "flex-start",
-                position: "relative",
+                justifyContent: "space-between",
                 boxSizing: "border-box",
               }}
             >
-              <Stack spacing={0.5}>
+              <Stack spacing={0.5} flexGrow={1}>
                 <Typography variant="body1" fontWeight={600}>
                   {formatAmount(history.amount)}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ opacity: 0.7, fontSize: "0.7rem" }}
-                >
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  {drinkTypes.find((type) => type.type === history.type)
+                    ?.label || "기타"}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.6 }}>
                   {formatTime(history.time)}
                 </Typography>
               </Stack>
-              <IconButton
-                size="small"
-                onClick={() => onDelete(history._id)}
+              <Box
                 sx={{
-                  position: "absolute",
-                  top: 1,
-                  right: 1,
-                  color: "primary.contrastText",
-                  p: 0.5,
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 1,
+                  mt: 1,
                 }}
               >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => onEdit(history)}
+                  sx={{ p: 0.5 }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => onDelete(history._id)}
+                  sx={{ p: 0.5 }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
             </Paper>
           ))
         ) : (

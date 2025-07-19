@@ -4,24 +4,56 @@ import { Box, Typography } from "@mui/material";
 import GoalProgress from "../components/GoalProgress";
 import DrinkHistory from "../components/DrinkHistory";
 import BottleButtons from "../components/BottleButtons";
-import { HISTORY, addHistory, deleteHistory } from "../api/DrinkApi";
+import {
+  HISTORY,
+  addHistory,
+  updateHistory,
+  deleteHistory,
+} from "../api/DrinkApi";
 import DrinkGoalModal from "../components/DrinkGoalModal";
+import DrinkEditHistoryModal from "../components/DrinkEditHistoryModal";
 
 export default function DrinkTrackerPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentAmount, setCurrentAmount] = useState(0);
   const [goalState, setGoalState] = useDrinkData(HISTORY.GOAL);
   const [histories, setHistories] = useDrinkData(HISTORY.DRINK);
+  const [editHistoryModalOpen, setEditHistoryModalOpen] = useState(false);
+  const [editHistoryTarget, setEditHistoryTarget] = useState(null);
 
   useEffect(() => {
     const totalAmount = histories.reduce((sum, item) => sum + item.amount, 0);
     setCurrentAmount(totalAmount);
   }, [histories]);
 
-  const handleAdd = async (amount) => {
+  const handleAdd = async (type, amount) => {
     try {
-      const newHistory = await addHistory(HISTORY.DRINK, { amount });
+      console.log(type);
+      const newHistory = await addHistory(HISTORY.DRINK, { type, amount });
       setHistories((prev) => [...prev, newHistory.data]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEditHistory = (history) => {
+    setEditHistoryTarget(history);
+    setEditHistoryModalOpen(true);
+  };
+
+  const handleSaveEditHistory = async (updated) => {
+    try {
+      const result = await updateHistory(HISTORY.DRINK, updated._id, {
+        type: updated.type,
+        amount: updated.amount,
+      });
+
+      setHistories((prev) =>
+        prev.map((history) =>
+          history._id === updated._id ? result.data : history
+        )
+      );
+      setEditHistoryModalOpen(false);
     } catch (err) {
       console.error(err);
     }
@@ -62,7 +94,11 @@ export default function DrinkTrackerPage() {
         onSettingsClick={() => setModalOpen(true)}
       />
 
-      <DrinkHistory histories={histories} onDelete={handleDelete} />
+      <DrinkHistory
+        histories={histories}
+        onEdit={handleEditHistory}
+        onDelete={handleDelete}
+      />
       <BottleButtons onAdd={handleAdd} />
 
       <DrinkGoalModal
@@ -70,6 +106,12 @@ export default function DrinkTrackerPage() {
         initialGoalState={goalState}
         onClose={() => setModalOpen(false)}
         onSave={handleSaveGoal}
+      />
+      <DrinkEditHistoryModal
+        open={editHistoryModalOpen}
+        onClose={() => setEditHistoryModalOpen(false)}
+        onSave={handleSaveEditHistory}
+        initialData={editHistoryTarget}
       />
     </Box>
   );

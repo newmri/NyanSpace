@@ -13,6 +13,27 @@ export const HISTORY = {
   },
 };
 
+export const DRINK = {
+  WATER: {
+    type: "water",
+    label: "물 💧",
+  },
+  COFFEE: {
+    type: "coffee",
+    label: "커피 ☕",
+  },
+  SODA: {
+    type: "soda",
+    label: "탄산 🥤",
+  },
+  TEA: {
+    type: "tea",
+    label: "차 🍵",
+  },
+};
+
+export const drinkTypes = Object.values(DRINK);
+
 export const getHistories = (history, date) => {
   const url = date
     ? `${API_URL}/drinktracker/histories/${history.type}?date=${date}`
@@ -23,6 +44,9 @@ export const getHistories = (history, date) => {
 
 export const addHistory = (history, payload) =>
   axios.post(`${API_URL}/drinktracker/histories/${history.type}`, payload);
+
+export const updateHistory = (history, id, payload) =>
+  axios.put(`${API_URL}/drinktracker/histories/${history.type}/${id}`, payload);
 
 export const deleteHistory = (history, id) =>
   axios.delete(`${API_URL}/drinktracker/histories/${history.type}/${id}`);
