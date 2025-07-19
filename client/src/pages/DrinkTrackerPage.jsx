@@ -10,11 +10,11 @@ import {
   updateHistory,
   deleteHistory,
 } from "../api/DrinkApi";
-import DrinkGoalModal from "../components/DrinkGoalModal";
+import DrinkEditGoalModal from "../components/DrinkEditGoalModal";
 import DrinkEditHistoryModal from "../components/DrinkEditHistoryModal";
 
 export default function DrinkTrackerPage() {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [editGoalModalOpen, setEditGoalModalOpen] = useState(false);
   const [currentAmount, setCurrentAmount] = useState(0);
   const [goalState, setGoalState] = useDrinkData(HISTORY.GOAL);
   const [histories, setHistories] = useDrinkData(HISTORY.DRINK);
@@ -73,7 +73,7 @@ export default function DrinkTrackerPage() {
     try {
       await addHistory(HISTORY.GOAL, { weight, goal });
       setGoalState({ weight, goal });
-      setModalOpen(false);
+      setEditGoalModalOpen(false);
     } catch (err) {
       console.error(err);
     }
@@ -91,7 +91,7 @@ export default function DrinkTrackerPage() {
       <GoalProgress
         current={currentAmount}
         goal={goalState.goal}
-        onSettingsClick={() => setModalOpen(true)}
+        onSettingsClick={() => setEditGoalModalOpen(true)}
       />
 
       <DrinkHistory
@@ -101,10 +101,10 @@ export default function DrinkTrackerPage() {
       />
       <BottleButtons onAdd={handleAdd} />
 
-      <DrinkGoalModal
-        open={modalOpen}
+      <DrinkEditGoalModal
+        open={editGoalModalOpen}
         initialGoalState={goalState}
-        onClose={() => setModalOpen(false)}
+        onClose={() => setEditGoalModalOpen(false)}
         onSave={handleSaveGoal}
       />
       <DrinkEditHistoryModal

@@ -8,6 +8,11 @@ const DrinkHistorySchema = new mongoose.Schema({
   amount: {
     type: Number,
     required: true,
+    min: 1,
+    validate: {
+      validator: Number.isInteger,
+      message: "{VALUE} 는 정수가 아닙니다.",
+    },
   },
   time: {
     type: Date,

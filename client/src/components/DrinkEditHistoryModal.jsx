@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import {
+  TextField,
+  Button,
+  MenuItem,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Button,
-  MenuItem,
 } from "@mui/material";
 import { drinkTypes } from "../api/DrinkApi";
 
-export default function DrinkEditHistoryModal({
+export default function RecordEditDialog({
   open,
   onClose,
   onSave,
@@ -18,6 +18,7 @@ export default function DrinkEditHistoryModal({
 }) {
   const [type, setType] = useState("");
   const [amount, setAmount] = useState("");
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -26,7 +27,23 @@ export default function DrinkEditHistoryModal({
     }
   }, [initialData]);
 
-  const handleSubmit = () => {
+  const handleChangeAmount = (e) => {
+    const value = e.target.value;
+    setAmount(value);
+
+    // 값이 비었거나 1 이상일 때 에러 없음
+    if (value === "" || Number(value) >= 1) {
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
+
+  const handleSave = () => {
+    if ("" === amount || Number(amount) < 1) {
+      setError(true);
+      return;
+    }
     onSave({ ...initialData, type, amount: Number(amount) });
   };
 
@@ -54,13 +71,16 @@ export default function DrinkEditHistoryModal({
           label="양 (ml)"
           type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={handleChangeAmount}
           margin="dense"
+          error={error}
+          helperText={error ? "1 이상의 양수를 입력하세요." : ""}
+          inputProps={{ min: 1 }}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>취소</Button>
-        <Button onClick={handleSubmit} variant="contained">
+        <Button onClick={handleSave} variant="contained">
           저장
         </Button>
       </DialogActions>
