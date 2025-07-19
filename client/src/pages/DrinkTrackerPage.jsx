@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDrinkData } from "../hooks/useDrinkData";
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import GoalProgress from "../components/GoalProgress";
 import DrinkHistory from "../components/DrinkHistory";
 import BottleButtons from "../components/BottleButtons";
@@ -80,7 +80,7 @@ export default function DrinkTrackerPage() {
   };
 
   return (
-    <Box sx={{ textAlign: "center", p: 4 }}>
+    <>
       <Typography variant="h4" gutterBottom>
         💧 물 마시기
       </Typography>
@@ -113,6 +113,6 @@ export default function DrinkTrackerPage() {
         onSave={handleSaveEditHistory}
         initialData={editHistoryTarget}
       />
-    </Box>
+    </>
   );
 }

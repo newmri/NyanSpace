@@ -12,11 +12,13 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import SearchIcon from "@mui/icons-material/Search";
+import EqualizerIcon from "@mui/icons-material/Equalizer";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
 import { Account } from "@toolpad/core/Account";
 import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
 import DrinkTrackerPage from "../pages/DrinkTrackerPage";
+import DrinkStaticsPage from "../pages/DrinkStaticsPage";
 
 const NAVIGATION = [
   {
@@ -32,6 +34,11 @@ const NAVIGATION = [
         segment: "drink",
         title: "물 마시기",
         icon: <LocalDrinkIcon />,
+      },
+      {
+        segment: "statics",
+        title: "통계",
+        icon: <EqualizerIcon />,
       },
     ],
   },
@@ -59,6 +66,9 @@ function DemoPageContent({ pathname }) {
   switch (pathname) {
     case "/drinktracker/drink":
       content = <DrinkTrackerPage />;
+      break;
+    case "/drinktracker/statics":
+      content = <DrinkStaticsPage />;
       break;
     default:
       content = <Typography>페이지를 찾을 수 없습니다: {pathname}</Typography>;
@@ -140,7 +150,7 @@ function CustomAppTitle() {
 function AppLayout(props) {
   const { window } = props;
 
-  const router = useDemoRouter("/");
+  const router = useDemoRouter("drinktracker/drink");
 
   const demoWindow = window !== undefined ? window() : undefined;
 
