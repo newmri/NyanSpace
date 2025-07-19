@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const HistorySchema = new mongoose.Schema({
+const DrinkHistorySchema = new mongoose.Schema({
   amount: {
     type: Number,
     required: true,
@@ -11,4 +11,4 @@ const HistorySchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("History", HistorySchema);
+module.exports = mongoose.model("DrinkHistory", DrinkHistorySchema);

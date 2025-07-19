@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, IconButton, Paper, Stack } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const formatAmount = (amount) => {
   if (1000 <= amount) return `${amount / 1000}L`;
@@ -71,7 +71,7 @@ export default function DrinkHistory({ histories, onDelete }) {
                   p: 0.5,
                 }}
               >
-                <CloseIcon fontSize="small" />
+                <DeleteIcon fontSize="small" />
               </IconButton>
             </Paper>
           ))

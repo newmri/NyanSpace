@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const History = require("../../models/drinktracker/history");
+const DrinkHistory = require("../../../models/drinktracker/histories/drinkhistory");
 
 // 기록 조회
 router.get("/", async (req, res) => {
@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
       filter.time = { $gte: start, $lte: end };
     }
 
-    const histories = await History.find(filter).sort({ time: 1 });
+    const histories = await DrinkHistory.find(filter).sort({ time: 1 });
     res.json(histories);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "amount is required" });
     }
 
-    const history = new History({ amount, time: new Date() });
+    const history = new DrinkHistory({ amount, time: new Date() });
     const savedHistory = await history.save();
     res.status(201).json(savedHistory);
   } catch (err) {
@@ -42,7 +42,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    await History.findByIdAndDelete(id);
+    await DrinkHistory.findByIdAndDelete(id);
     res.status(204).end();
   } catch (err) {
     res.status(500).json({ message: err.message });
