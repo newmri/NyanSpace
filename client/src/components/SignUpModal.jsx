@@ -22,6 +22,7 @@ export default function SignUpModal({ open, onClose }) {
   useEffect(() => {
     if (open) {
       setEmail("");
+      setNickname("");
       setPassword("");
       setErrors(getInitialErrors());
     }
