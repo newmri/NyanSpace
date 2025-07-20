@@ -11,22 +11,136 @@ import {
 } from "@mui/material";
 import { validateEmail } from "../utils/validate";
 
+// ---------------------- 더미 API ----------------------
+const sendEmailVerificationCode = async (email) => {
+  return { code: "123456" }; // 실제 앱에서는 code를 응답하지 않음
+};
+
+const checkNicknameAvailability = async (nickname) => {
+  return { available: nickname !== "곰돌이" };
+};
+// -----------------------------------------------------
+
 const getInitialErrors = () => ({ email: "", nickname: "", password: "" });
 
 export default function SignUpModal({ open, onClose }) {
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
+
   const [errors, setErrors] = useState(getInitialErrors());
 
+  const [authCodeSent, setAuthCodeSent] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [authCode, setAuthCode] = useState("");
+  const [enteredCode, setEnteredCode] = useState("");
+
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+
+  const [codeExpireTime, setCodeExpireTime] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  // 다이얼로그 열릴 때 초기화
   useEffect(() => {
     if (open) {
       setEmail("");
       setNickname("");
       setPassword("");
       setErrors(getInitialErrors());
+      setAuthCodeSent(false);
+      setEmailVerified(false);
+      setAuthCode("");
+      setEnteredCode("");
+      setNicknameChecked(false);
+      setCodeExpireTime(0);
+      setResendCooldown(0);
     }
   }, [open]);
+
+  // 3분 유효시간 타이머
+  useEffect(() => {
+    if (!authCodeSent || emailVerified) return;
+    if (codeExpireTime <= 0) {
+      setAuthCodeSent(false);
+      setAuthCode("");
+      alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCodeExpireTime((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [authCodeSent, codeExpireTime, emailVerified]);
+
+  // 1분 쿨다운 타이머
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const handleSendAuthCode = async () => {
+    if (!email || !validateEmail(email)) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "올바른 이메일을 입력해주세요.",
+      }));
+      return;
+    }
+
+    if (resendCooldown > 0) {
+      alert(`${resendCooldown}초 뒤에 다시 시도해주세요.`);
+      return;
+    }
+
+    try {
+      const res = await sendEmailVerificationCode(email);
+      setAuthCode(res.code);
+      setAuthCodeSent(true);
+      setEmailVerified(false);
+      setCodeExpireTime(180); // 3분
+      setResendCooldown(60); // 1분
+      alert("인증 코드가 전송되었습니다.");
+    } catch (err) {
+      alert("이메일 인증 코드 전송 실패");
+    }
+  };
+
+  const handleVerifyAuthCode = () => {
+    if (enteredCode === authCode) {
+      setEmailVerified(true);
+      alert("이메일 인증 완료!");
+    } else {
+      alert("인증 코드가 일치하지 않습니다.");
+    }
+  };
+
+  const handleCheckNickname = async () => {
+    if (!nickname) {
+      setErrors((prev) => ({
+        ...prev,
+        nickname: "닉네임을 입력해주세요.",
+      }));
+      return;
+    }
+
+    try {
+      const res = await checkNicknameAvailability(nickname);
+      if (res.available) {
+        setNicknameChecked(true);
+        alert("사용 가능한 닉네임입니다.");
+      } else {
+        setNicknameChecked(false);
+        alert("이미 사용 중인 닉네임입니다.");
+      }
+    } catch (err) {
+      alert("닉네임 확인 실패");
+    }
+  };
 
   const handleSubmit = () => {
     const newErrors = getInitialErrors();
@@ -51,8 +165,17 @@ export default function SignUpModal({ open, onClose }) {
       return;
     }
 
-    setErrors({ email: "", nickname: "", password: "" });
-    alert(`회원가입 시도: ${email} / ${nickname} / ${password}`);
+    if (!emailVerified) {
+      alert("이메일 인증을 완료해주세요.");
+      return;
+    }
+
+    if (!nicknameChecked) {
+      alert("닉네임 중복 확인을 해주세요.");
+      return;
+    }
+
+    alert(`회원가입 완료: ${email} / ${nickname}`);
     handleDialogClose(null, null, true);
   };
 
@@ -76,33 +199,87 @@ export default function SignUpModal({ open, onClose }) {
             gap: 2,
           }}
         >
-          <TextField
-            label="이메일"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-            autoFocus
-            placeholder="youremail@naver.com"
-            error={!!errors.email}
-            helperText={errors.email}
-          />
+          <Stack direction="row" spacing={1}>
+            <TextField
+              label="이메일"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailVerified(false);
+              }}
+              placeholder="youremail@naver.com"
+              error={!!errors.email}
+              helperText={errors.email}
+              sx={{ flex: 1 }}
+            />
+            <Button
+              variant="outlined"
+              onClick={handleSendAuthCode}
+              sx={{ whiteSpace: "nowrap", px: 2 }}
+            >
+              코드 전송
+            </Button>
+          </Stack>
 
-          <TextField
-            label="닉네임"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            fullWidth
-            placeholder="물마시는곰돌이"
-            error={!!errors.nickname}
-            helperText={errors.nickname}
-          />
+          {authCodeSent && !emailVerified && (
+            <>
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  label="인증 코드"
+                  value={enteredCode}
+                  onChange={(e) => setEnteredCode(e.target.value)}
+                  fullWidth
+                />
+                <Button variant="outlined" onClick={handleVerifyAuthCode}>
+                  확인
+                </Button>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between">
+                <Box sx={{ fontSize: "0.875rem", color: "gray" }}>
+                  남은 시간:{" "}
+                  {String(Math.floor(codeExpireTime / 60)).padStart(2, "0")}:
+                  {String(codeExpireTime % 60).padStart(2, "0")}
+                </Box>
+                <Button
+                  size="small"
+                  disabled={resendCooldown > 0}
+                  onClick={handleSendAuthCode}
+                >
+                  {resendCooldown > 0
+                    ? `${resendCooldown}초 후 재전송`
+                    : "재전송"}
+                </Button>
+              </Stack>
+            </>
+          )}
+
+          <Stack direction="row" spacing={1}>
+            <TextField
+              label="닉네임"
+              value={nickname}
+              onChange={(e) => {
+                setNickname(e.target.value);
+                setNicknameChecked(false);
+              }}
+              fullWidth
+              placeholder="물마시는곰돌이"
+              error={!!errors.nickname}
+              helperText={errors.nickname}
+              sx={{ flex: 1 }}
+            />
+            <Button
+              variant="outlined"
+              onClick={handleCheckNickname}
+              sx={{ whiteSpace: "nowrap", px: 2 }}
+            >
+              중복 확인
+            </Button>
+          </Stack>
 
           <TextField
             label="비밀번호"
             type="password"
-            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
@@ -127,6 +304,16 @@ export default function SignUpModal({ open, onClose }) {
           >
             <Link href="#" underline="hover" variant="body2">
               비밀번호 찾기
+            </Link>
+            <Link
+              component="button"
+              underline="hover"
+              variant="body2"
+              onClick={() => {
+                handleDialogClose(null, null, true);
+              }}
+            >
+              로그인
             </Link>
           </Stack>
         </Box>

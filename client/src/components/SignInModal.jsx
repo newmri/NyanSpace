@@ -112,7 +112,6 @@ export default function SignInModal({ open, onClose, onSignUp }) {
               underline="hover"
               variant="body2"
               onClick={() => {
-                console.log("aaa");
                 onClose();
                 onSignUp();
               }}
