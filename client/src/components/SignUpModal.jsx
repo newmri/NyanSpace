@@ -11,7 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { validateEmail } from "../utils/validate";
-import { sendEmailVerificationCode } from "../api/SignUp";
+import { generateCode, verifyCode } from "../api/SignUpApi";
 
 const getInitialErrors = () => ({ email: "", nickname: "", password: "" });
 
@@ -22,9 +22,9 @@ export default function SignUpModal({ open, onClose }) {
 
   const [errors, setErrors] = useState(getInitialErrors());
 
-  const [authCodeSent, setAuthCodeSent] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
-  const [authCode, setAuthCode] = useState("");
+  const [code, setCode] = useState("");
   const [enteredCode, setEnteredCode] = useState("");
 
   const [codeExpireTime, setCodeExpireTime] = useState(0);
@@ -39,9 +39,9 @@ export default function SignUpModal({ open, onClose }) {
       setNickname("");
       setPassword("");
       setErrors(getInitialErrors());
-      setAuthCodeSent(false);
+      setCodeSent(false);
       setEmailVerified(false);
-      setAuthCode("");
+      setCode("");
       setEnteredCode("");
       setCodeExpireTime(0);
       setResendCooldown(0);
@@ -50,10 +50,10 @@ export default function SignUpModal({ open, onClose }) {
   }, [open]);
 
   useEffect(() => {
-    if (!authCodeSent || emailVerified) return;
+    if (!codeSent || emailVerified) return;
     if (codeExpireTime <= 0) {
-      setAuthCodeSent(false);
-      setAuthCode("");
+      setCodeSent(false);
+      setCode("");
       alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
       return;
     }
@@ -63,7 +63,7 @@ export default function SignUpModal({ open, onClose }) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [authCodeSent, codeExpireTime, emailVerified]);
+  }, [codeSent, codeExpireTime, emailVerified]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -73,7 +73,7 @@ export default function SignUpModal({ open, onClose }) {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const handleVerificationCode = async () => {
+  const handleGenerateCode = async () => {
     if (!nickname) {
       setErrors((prev) => ({
         ...prev,
@@ -97,27 +97,48 @@ export default function SignUpModal({ open, onClose }) {
 
     try {
       setLoading(true);
-      const res = await sendEmailVerificationCode(nickname, email);
+      const res = await generateCode(nickname, email);
       const data = res.data;
-
-      setAuthCodeSent(true);
+      if (data.verified) {
+        setEmailVerified(true);
+        setCodeSent(false);
+        alert("기존 인증 정보가 있습니다.\n인증이 완료되었습니다.");
+        return;
+      }
       setEmailVerified(false);
+      setCodeSent(true);
       setCodeExpireTime(data.ttl);
       setResendCooldown(data.resendCooldown);
       alert("인증 코드가 전송되었습니다.");
     } catch (err) {
-      alert("이메일 인증 코드 전송 실패");
+      if (err.response && err.response.data) {
+        const { error, ttlLeft, cooldownLeft } = err.response.data;
+        alert(error);
+        if (ttlLeft && cooldownLeft) {
+          setEmailVerified(false);
+          setCodeSent(true);
+          setCodeExpireTime(ttlLeft);
+          setResendCooldown(cooldownLeft);
+        }
+      } else {
+        alert("인증 코드 요청 중 오류가 발생했습니다.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyAuthCode = () => {
-    if (enteredCode === authCode) {
+  const handleVerifyCode = async () => {
+    try {
+      await verifyCode(email, enteredCode);
       setEmailVerified(true);
-      alert("이메일 인증 완료!");
-    } else {
-      alert("인증 코드가 일치하지 않습니다.");
+      setCodeSent(false);
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        alert(err.response.data.error);
+      } else {
+        alert("인증 실패");
+      }
     }
   };
 
@@ -203,7 +224,7 @@ export default function SignUpModal({ open, onClose }) {
             />
             <Button
               variant="outlined"
-              onClick={handleVerificationCode}
+              onClick={handleGenerateCode}
               disabled={loading || resendCooldown > 0}
               startIcon={loading && <CircularProgress size={20} />}
               sx={{ whiteSpace: "nowrap", px: 2 }}
@@ -212,7 +233,7 @@ export default function SignUpModal({ open, onClose }) {
             </Button>
           </Stack>
 
-          {authCodeSent && !emailVerified && (
+          {codeSent && !emailVerified && (
             <>
               <Stack direction="row" spacing={1}>
                 <TextField
@@ -221,7 +242,7 @@ export default function SignUpModal({ open, onClose }) {
                   onChange={(e) => setEnteredCode(e.target.value)}
                   fullWidth
                 />
-                <Button variant="outlined" onClick={handleVerifyAuthCode}>
+                <Button variant="outlined" onClick={handleVerifyCode}>
                   확인
                 </Button>
               </Stack>
@@ -234,7 +255,7 @@ export default function SignUpModal({ open, onClose }) {
                 <Button
                   size="small"
                   disabled={resendCooldown > 0}
-                  onClick={handleVerificationCode}
+                  onClick={handleGenerateCode}
                 >
                   {resendCooldown > 0
                     ? `${resendCooldown}초 후 재전송`

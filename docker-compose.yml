@@ -22,11 +22,14 @@ services:
       - /app/node_modules
     environment:
       - MONGO_URI=mongodb://mongo:27017/nyanspace
+      - REDIS_URI=redis://default:${REDIS_PASSWORD}@redis:6379
       - TZ=Asia/Seoul
     depends_on:
       - mongo
+      - redis
     command: ["npx", "nodemon", "--legacy-watch", "index.js"]
-
+    env_file:
+      - server/.env
   mongo:
     image: mongo:8
     container_name: mongo
@@ -38,5 +41,20 @@ services:
     environment:
       - TZ=Asia/Seoul
 
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    env_file:
+      - server/.env
+    volumes:
+      - redis-data:/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Seoul
+
 volumes:
   mongo-data:
+  redis-data:
