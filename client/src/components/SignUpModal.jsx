@@ -8,18 +8,10 @@ import {
   Box,
   Link,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import { validateEmail } from "../utils/validate";
-
-// ---------------------- 더미 API ----------------------
-const sendEmailVerificationCode = async (email) => {
-  return { code: "123456" }; // 실제 앱에서는 code를 응답하지 않음
-};
-
-const checkNicknameAvailability = async (nickname) => {
-  return { available: nickname !== "곰돌이" };
-};
-// -----------------------------------------------------
+import { sendEmailVerificationCode } from "../api/SignUp";
 
 const getInitialErrors = () => ({ email: "", nickname: "", password: "" });
 
@@ -35,10 +27,10 @@ export default function SignUpModal({ open, onClose }) {
   const [authCode, setAuthCode] = useState("");
   const [enteredCode, setEnteredCode] = useState("");
 
-  const [nicknameChecked, setNicknameChecked] = useState(false);
-
   const [codeExpireTime, setCodeExpireTime] = useState(0);
   const [resendCooldown, setResendCooldown] = useState(0);
+
+  const [loading, setLoading] = useState(false);
 
   // 다이얼로그 열릴 때 초기화
   useEffect(() => {
@@ -51,13 +43,12 @@ export default function SignUpModal({ open, onClose }) {
       setEmailVerified(false);
       setAuthCode("");
       setEnteredCode("");
-      setNicknameChecked(false);
       setCodeExpireTime(0);
       setResendCooldown(0);
+      setLoading(false);
     }
   }, [open]);
 
-  // 3분 유효시간 타이머
   useEffect(() => {
     if (!authCodeSent || emailVerified) return;
     if (codeExpireTime <= 0) {
@@ -74,7 +65,6 @@ export default function SignUpModal({ open, onClose }) {
     return () => clearInterval(interval);
   }, [authCodeSent, codeExpireTime, emailVerified]);
 
-  // 1분 쿨다운 타이머
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const timer = setInterval(() => {
@@ -83,7 +73,15 @@ export default function SignUpModal({ open, onClose }) {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const handleSendAuthCode = async () => {
+  const handleVerificationCode = async () => {
+    if (!nickname) {
+      setErrors((prev) => ({
+        ...prev,
+        nickname: "닉네임을 입력해주세요.",
+      }));
+      return;
+    }
+
     if (!email || !validateEmail(email)) {
       setErrors((prev) => ({
         ...prev,
@@ -98,15 +96,19 @@ export default function SignUpModal({ open, onClose }) {
     }
 
     try {
-      const res = await sendEmailVerificationCode(email);
-      setAuthCode(res.code);
+      setLoading(true);
+      const res = await sendEmailVerificationCode(nickname, email);
+      const data = res.data;
+
       setAuthCodeSent(true);
       setEmailVerified(false);
-      setCodeExpireTime(180); // 3분
-      setResendCooldown(60); // 1분
+      setCodeExpireTime(data.ttl);
+      setResendCooldown(data.resendCooldown);
       alert("인증 코드가 전송되었습니다.");
     } catch (err) {
       alert("이메일 인증 코드 전송 실패");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,29 +118,6 @@ export default function SignUpModal({ open, onClose }) {
       alert("이메일 인증 완료!");
     } else {
       alert("인증 코드가 일치하지 않습니다.");
-    }
-  };
-
-  const handleCheckNickname = async () => {
-    if (!nickname) {
-      setErrors((prev) => ({
-        ...prev,
-        nickname: "닉네임을 입력해주세요.",
-      }));
-      return;
-    }
-
-    try {
-      const res = await checkNicknameAvailability(nickname);
-      if (res.available) {
-        setNicknameChecked(true);
-        alert("사용 가능한 닉네임입니다.");
-      } else {
-        setNicknameChecked(false);
-        alert("이미 사용 중인 닉네임입니다.");
-      }
-    } catch (err) {
-      alert("닉네임 확인 실패");
     }
   };
 
@@ -170,11 +149,6 @@ export default function SignUpModal({ open, onClose }) {
       return;
     }
 
-    if (!nicknameChecked) {
-      alert("닉네임 중복 확인을 해주세요.");
-      return;
-    }
-
     alert(`회원가입 완료: ${email} / ${nickname}`);
     handleDialogClose(null, null, true);
   };
@@ -201,6 +175,20 @@ export default function SignUpModal({ open, onClose }) {
         >
           <Stack direction="row" spacing={1}>
             <TextField
+              label="닉네임"
+              value={nickname}
+              onChange={(e) => {
+                setNickname(e.target.value);
+              }}
+              fullWidth
+              placeholder="물마시는곰돌이"
+              error={!!errors.nickname}
+              helperText={errors.nickname}
+            />
+          </Stack>
+
+          <Stack direction="row" spacing={1}>
+            <TextField
               label="이메일"
               type="email"
               value={email}
@@ -215,7 +203,9 @@ export default function SignUpModal({ open, onClose }) {
             />
             <Button
               variant="outlined"
-              onClick={handleSendAuthCode}
+              onClick={handleVerificationCode}
+              disabled={loading || resendCooldown > 0}
+              startIcon={loading && <CircularProgress size={20} />}
               sx={{ whiteSpace: "nowrap", px: 2 }}
             >
               코드 전송
@@ -244,7 +234,7 @@ export default function SignUpModal({ open, onClose }) {
                 <Button
                   size="small"
                   disabled={resendCooldown > 0}
-                  onClick={handleSendAuthCode}
+                  onClick={handleVerificationCode}
                 >
                   {resendCooldown > 0
                     ? `${resendCooldown}초 후 재전송`
@@ -253,29 +243,6 @@ export default function SignUpModal({ open, onClose }) {
               </Stack>
             </>
           )}
-
-          <Stack direction="row" spacing={1}>
-            <TextField
-              label="닉네임"
-              value={nickname}
-              onChange={(e) => {
-                setNickname(e.target.value);
-                setNicknameChecked(false);
-              }}
-              fullWidth
-              placeholder="물마시는곰돌이"
-              error={!!errors.nickname}
-              helperText={errors.nickname}
-              sx={{ flex: 1 }}
-            />
-            <Button
-              variant="outlined"
-              onClick={handleCheckNickname}
-              sx={{ whiteSpace: "nowrap", px: 2 }}
-            >
-              중복 확인
-            </Button>
-          </Stack>
 
           <TextField
             label="비밀번호"
