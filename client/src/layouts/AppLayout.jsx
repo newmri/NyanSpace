@@ -18,6 +18,7 @@ import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
 import DrinkTrackerPage from "../pages/DrinkTrackerPage";
 import DrinkStaticsPage from "../pages/DrinkStaticsPage";
 import SignInModal from "../components/SignInModal";
+import SignUpModal from "../components/SignUpModal";
 
 const NAVIGATION = [
   {
@@ -116,6 +117,7 @@ function AppLayout(props) {
   const demoWindow = window !== undefined ? window() : undefined;
 
   const [signInModalOpen, setSignInModalOpen] = useState(false);
+  const [signUpModalOpen, setSignUpModalOpen] = useState(false);
 
   function ToolbarActions() {
     return (
@@ -156,6 +158,14 @@ function AppLayout(props) {
       <SignInModal
         open={signInModalOpen}
         onClose={() => setSignInModalOpen(false)}
+        onSignUp={() => setSignUpModalOpen(true)}
+      />
+      <SignUpModal
+        open={signUpModalOpen}
+        onClose={(isSuccess) => {
+          setSignUpModalOpen(false);
+          if (isSuccess) setSignInModalOpen(true);
+        }}
       />
     </DemoProvider>
   );

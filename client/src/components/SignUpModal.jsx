@@ -12,17 +12,20 @@ import {
 } from "@mui/material";
 import { validateEmail } from "../utils/validate";
 
-export default function SignInModal({ open, onClose, onSignUp }) {
+export default function SignUpModal({ open, onClose }) {
   const [email, setEmail] = useState("");
+  const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({
     email: "",
+    nickname: "",
     password: "",
   });
 
   const handleSubmit = () => {
     const newErrors = {
       email: "",
+      nickname: "",
       password: "",
     };
 
@@ -30,6 +33,10 @@ export default function SignInModal({ open, onClose, onSignUp }) {
       newErrors.email = "이메일을 입력해주세요.";
     } else if (!validateEmail(email)) {
       newErrors.email = "올바른 이메일 형식을 입력해주세요.";
+    }
+
+    if (!nickname) {
+      newErrors.nickname = "닉네임을 입력해주세요.";
     }
 
     if (!password) {
@@ -42,15 +49,19 @@ export default function SignInModal({ open, onClose, onSignUp }) {
       return;
     }
 
-    setErrors({ email: "", password: "" });
-    alert(`로그인 시도: ${email} / ${password}`);
-    onClose();
+    setErrors({ email: "", nickname: "", password: "" });
+    alert(`회원가입 시도: ${email} / ${nickname} / ${password}`);
+    handleDialogClose(null, null, true);
+  };
+
+  const handleDialogClose = (event, reason, isSuccess = false) => {
+    onClose(isSuccess);
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog open={open} onClose={handleDialogClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
-        로그인
+        회원가입
       </DialogTitle>
       <DialogContent>
         <Box
@@ -75,6 +86,17 @@ export default function SignInModal({ open, onClose, onSignUp }) {
             error={!!errors.email}
             helperText={errors.email}
           />
+
+          <TextField
+            label="닉네임"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            fullWidth
+            placeholder="물마시는곰돌이"
+            error={!!errors.nickname}
+            helperText={errors.nickname}
+          />
+
           <TextField
             label="비밀번호"
             type="password"
@@ -93,7 +115,7 @@ export default function SignInModal({ open, onClose, onSignUp }) {
             fullWidth
             sx={{ py: 1.5, mt: 1 }}
           >
-            로그인
+            회원가입
           </Button>
 
           <Stack
@@ -103,18 +125,6 @@ export default function SignInModal({ open, onClose, onSignUp }) {
           >
             <Link href="#" underline="hover" variant="body2">
               비밀번호 찾기
-            </Link>
-            <Link
-              component="button"
-              underline="hover"
-              variant="body2"
-              onClick={() => {
-                console.log("aaa");
-                onClose();
-                onSignUp();
-              }}
-            >
-              회원가입
             </Link>
           </Stack>
         </Box>
