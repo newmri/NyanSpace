@@ -1,30 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   TextField,
   Button,
-  Typography,
   Box,
   Link,
   Stack,
 } from "@mui/material";
 import { validateEmail } from "../utils/validate";
 
+const getInitialErrors = () => ({ email: "", password: "" });
+
 export default function SignInModal({ open, onClose, onSignUp }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({
-    email: "",
-    password: "",
-  });
+  const [errors, setErrors] = useState(getInitialErrors());
+
+  useEffect(() => {
+    if (open) {
+      setEmail("");
+      setPassword("");
+      setErrors(getInitialErrors());
+    }
+  }, [open]);
 
   const handleSubmit = () => {
-    const newErrors = {
-      email: "",
-      password: "",
-    };
+    const newErrors = getInitialErrors();
 
     if (!email) {
       newErrors.email = "이메일을 입력해주세요.";
