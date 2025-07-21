@@ -109,6 +109,7 @@ export default function SignInModal({ open, onClose, onSignUp }) {
             </Link>
             <Link
               component="button"
+              type="button"
               underline="hover"
               variant="body2"
               onClick={() => {
