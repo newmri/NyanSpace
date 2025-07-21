@@ -24,7 +24,7 @@ export default function SignUpModal({ open, onClose }) {
 
   const [codeSent, setCodeSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
-  const [code, setCode] = useState("");
+  const [uuid, setUuid] = useState(null);
   const [enteredCode, setEnteredCode] = useState("");
 
   const [codeExpireTime, setCodeExpireTime] = useState(0);
@@ -41,7 +41,7 @@ export default function SignUpModal({ open, onClose }) {
       setErrors(getInitialErrors());
       setCodeSent(false);
       setEmailVerified(false);
-      setCode("");
+      setUuid(null);
       setEnteredCode("");
       setCodeExpireTime(0);
       setResendCooldown(0);
@@ -53,7 +53,7 @@ export default function SignUpModal({ open, onClose }) {
     if (!codeSent || emailVerified) return;
     if (codeExpireTime <= 0) {
       setCodeSent(false);
-      setCode("");
+      setUuid(null);
       alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
       return;
     }
@@ -99,26 +99,22 @@ export default function SignUpModal({ open, onClose }) {
       setLoading(true);
       const res = await generateCode(nickname, email);
       const data = res.data;
-      if (data.verified) {
-        setEmailVerified(true);
-        setCodeSent(false);
-        alert("기존 인증 정보가 있습니다.\n인증이 완료되었습니다.");
-        return;
-      }
+
       setEmailVerified(false);
       setCodeSent(true);
+      setUuid(data.uuid);
       setCodeExpireTime(data.ttl);
       setResendCooldown(data.resendCooldown);
       alert("인증 코드가 전송되었습니다.");
     } catch (err) {
       if (err.response && err.response.data) {
-        const { error, ttlLeft, cooldownLeft } = err.response.data;
-        alert(error);
-        if (ttlLeft && cooldownLeft) {
+        const { error, cooldownLeft } = err.response.data;
+        if (cooldownLeft) {
           setEmailVerified(false);
           setCodeSent(true);
-          setCodeExpireTime(ttlLeft);
           setResendCooldown(cooldownLeft);
+        } else {
+          alert(error);
         }
       } else {
         alert("인증 코드 요청 중 오류가 발생했습니다.");
@@ -130,7 +126,7 @@ export default function SignUpModal({ open, onClose }) {
 
   const handleVerifyCode = async () => {
     try {
-      await verifyCode(email, enteredCode);
+      await verifyCode(uuid, enteredCode);
       setEmailVerified(true);
       setCodeSent(false);
     } catch (err) {
@@ -221,6 +217,7 @@ export default function SignUpModal({ open, onClose }) {
               error={!!errors.email}
               helperText={errors.email}
               sx={{ flex: 1 }}
+              disabled={loading || codeSent || emailVerified}
             />
             <Button
               variant="outlined"
@@ -233,24 +230,32 @@ export default function SignUpModal({ open, onClose }) {
             </Button>
           </Stack>
 
-          {codeSent && !emailVerified && (
+          {((codeSent && !emailVerified) || resendCooldown > 0) && (
             <>
-              <Stack direction="row" spacing={1}>
-                <TextField
-                  label="인증 코드"
-                  value={enteredCode}
-                  onChange={(e) => setEnteredCode(e.target.value)}
-                  fullWidth
-                />
-                <Button variant="outlined" onClick={handleVerifyCode}>
-                  확인
-                </Button>
-              </Stack>
+              {codeSent && !emailVerified && (
+                <Stack direction="row" spacing={1}>
+                  <TextField
+                    label="인증 코드"
+                    value={enteredCode}
+                    onChange={(e) => setEnteredCode(e.target.value)}
+                    fullWidth
+                  />
+                  <Button variant="outlined" onClick={handleVerifyCode}>
+                    확인
+                  </Button>
+                </Stack>
+              )}
               <Stack direction="row" justifyContent="space-between">
                 <Box sx={{ fontSize: "0.875rem", color: "gray" }}>
-                  남은 시간:{" "}
-                  {String(Math.floor(codeExpireTime / 60)).padStart(2, "0")}:
-                  {String(codeExpireTime % 60).padStart(2, "0")}
+                  {codeExpireTime > 0 ? (
+                    <>
+                      남은 시간:{" "}
+                      {String(Math.floor(codeExpireTime / 60)).padStart(2, "0")}
+                      :{String(codeExpireTime % 60).padStart(2, "0")}
+                    </>
+                  ) : (
+                    "인증 시간 만료"
+                  )}
                 </Box>
                 <Button
                   size="small"
@@ -264,7 +269,6 @@ export default function SignUpModal({ open, onClose }) {
               </Stack>
             </>
           )}
-
           <TextField
             label="비밀번호"
             type="password"
