@@ -10,8 +10,8 @@ import {
   Stack,
   CircularProgress,
 } from "@mui/material";
-import { validateEmail } from "../utils/validate";
-import { generateCode, verifyCode } from "../api/SignUpApi";
+import { validateEmail } from "../../utils/validate";
+import { generateCode, verifyCode } from "../../api/SignUpApi";
 
 const getInitialErrors = () => ({ email: "", nickname: "", password: "" });
 

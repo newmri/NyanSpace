@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useDrinkData } from "../hooks/useDrinkData";
 import { Typography } from "@mui/material";
-import GoalProgress from "../components/GoalProgress";
-import DrinkHistory from "../components/DrinkHistory";
-import BottleButtons from "../components/BottleButtons";
+import GoalProgress from "../components/drink/GoalProgress";
+import DrinkHistory from "../components/drink/DrinkHistory";
+import BottleButtons from "../components/drink/BottleButtons";
 import {
   HISTORY,
   addHistory,
   updateHistory,
   deleteHistory,
 } from "../api/DrinkApi";
-import DrinkEditGoalModal from "../components/DrinkEditGoalModal";
-import DrinkEditHistoryModal from "../components/DrinkEditHistoryModal";
+import DrinkEditGoalModal from "../components/modals/DrinkEditGoalModal";
+import DrinkEditHistoryModal from "../components/modals/DrinkEditHistoryModal";
 
 export default function DrinkTrackerPage() {
   const [editGoalModalOpen, setEditGoalModalOpen] = useState(false);

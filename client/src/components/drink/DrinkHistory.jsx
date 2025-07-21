@@ -1,15 +1,9 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  IconButton,
-  Paper,
-  Stack,
-} from "@mui/material";
+import { Box, Typography, IconButton, Paper, Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { formatTime } from "../utils/date";
-import { drinkTypes } from "../api/DrinkApi";
+import { formatTime } from "../../utils/date";
+import { drinkTypes } from "../../api/DrinkApi";
 
 // 용량 포맷 함수
 const formatAmount = (amount) => {

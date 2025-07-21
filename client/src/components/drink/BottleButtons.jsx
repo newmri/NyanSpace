@@ -13,12 +13,12 @@ import {
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SvgIcon from "@mui/material/SvgIcon";
-import { ReactComponent as Cup185mlSvg } from "../assets/images/bottles/185ml.svg";
-import { ReactComponent as Can355mlSvg } from "../assets/images/bottles/355ml.svg";
-import { ReactComponent as Pet500mlSvg } from "../assets/images/bottles/500ml.svg";
-import { ReactComponent as Pet1lSvg } from "../assets/images/bottles/1l.svg";
-import "../styles/bottle.css";
-import { DRINK, drinkTypes } from "../api/DrinkApi";
+import { ReactComponent as Cup185mlSvg } from "../../assets/images/bottles/185ml.svg";
+import { ReactComponent as Can355mlSvg } from "../../assets/images/bottles/355ml.svg";
+import { ReactComponent as Pet500mlSvg } from "../../assets/images/bottles/500ml.svg";
+import { ReactComponent as Pet1lSvg } from "../../assets/images/bottles/1l.svg";
+import "../../styles/bottle.css";
+import { DRINK, drinkTypes } from "../../api/DrinkApi";
 
 // 병 버튼 컴포넌트
 function BottleButton({

@@ -9,7 +9,7 @@ import {
   Link,
   Stack,
 } from "@mui/material";
-import { validateEmail } from "../utils/validate";
+import { validateEmail } from "../../utils/validate";
 
 const getInitialErrors = () => ({ email: "", password: "" });
 

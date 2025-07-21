@@ -17,8 +17,8 @@ import { Account } from "@toolpad/core/Account";
 import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
 import DrinkTrackerPage from "../pages/DrinkTrackerPage";
 import DrinkStaticsPage from "../pages/DrinkStaticsPage";
-import SignInModal from "../components/SignInModal";
-import SignUpModal from "../components/SignUpModal";
+import SignInModal from "../components/modals/SignInModal";
+import SignUpModal from "../components/modals/SignUpModal";
 
 const NAVIGATION = [
   {
