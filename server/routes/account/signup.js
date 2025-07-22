@@ -1,9 +1,9 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const router = express.Router();
-const { sendMail } = require("../services/emailService");
-const redisClient = require("../config/redisClient");
-const Account = require("../models/account/account");
+const { sendMail } = require("../../services/emailService");
+const redisClient = require("../../config/redisClient");
+const Account = require("../../models/account/account");
 
 function generateVerificationCode(length = 6) {
   let code = "";

@@ -8,7 +8,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { drinkTypes } from "../../api/DrinkApi";
+import { drinkTypes } from "../../api/drink/DrinkApi";
 
 export default function RecordEditDialog({
   open,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Container } from "@mui/material";
 import Button from "@mui/material/Button";
@@ -19,6 +19,8 @@ import DrinkTrackerPage from "../pages/DrinkTrackerPage";
 import DrinkStaticsPage from "../pages/DrinkStaticsPage";
 import SignInModal from "../components/modals/SignInModal";
 import SignUpModal from "../components/modals/SignUpModal";
+import { logout } from "../api/account/LogoutApi";
+import { getSessionAccount } from "../api/account/SessionApi";
 
 const NAVIGATION = [
   {
@@ -118,24 +120,68 @@ function AppLayout(props) {
 
   const [signInModalOpen, setSignInModalOpen] = useState(false);
   const [signUpModalOpen, setSignUpModalOpen] = useState(false);
+  const [account, setAccount] = useState(undefined);
+
+  useEffect(() => {
+    const fetchAccount = async () => {
+      try {
+        const res = await getSessionAccount();
+        setAccount(res.data.account);
+      } catch (err) {
+        setAccount(null);
+      }
+    };
+
+    fetchAccount();
+  }, []);
 
   function ToolbarActions() {
+    if (undefined === account) {
+      return <div style={{ height: "64px" }} />;
+    }
+
     return (
-      <Stack direction="row">
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<LoginIcon />}
-          sx={{ borderRadius: "20px", textTransform: "none" }}
-          onClick={() => setSignInModalOpen(true)}
-        >
-          로그인
-        </Button>
+      <Stack direction="row" spacing={1} alignItems="center">
+        {account ? (
+          <>
+            <Typography sx={{ display: "flex", alignItems: "center" }}>
+              {account.nickname}님
+            </Typography>
+            <Button
+              variant="outlined"
+              color="secondary"
+              sx={{ borderRadius: "20px", textTransform: "none" }}
+              onClick={() => handleLogout()}
+            >
+              로그아웃
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<LoginIcon />}
+            sx={{ borderRadius: "20px", textTransform: "none" }}
+            onClick={() => setSignInModalOpen(true)}
+          >
+            로그인
+          </Button>
+        )}
+
         <ThemeSwitcher />
         <Account />
       </Stack>
     );
   }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setAccount(null);
+    } catch (err) {
+      alert(err.response.data.error);
+    }
+  };
 
   return (
     <DemoProvider window={demoWindow}>
@@ -159,6 +205,7 @@ function AppLayout(props) {
         open={signInModalOpen}
         onClose={() => setSignInModalOpen(false)}
         onSignUp={() => setSignUpModalOpen(true)}
+        onLoginSuccess={(account) => setAccount(account)}
       />
       <SignUpModal
         open={signUpModalOpen}

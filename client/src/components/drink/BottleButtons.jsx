@@ -18,7 +18,7 @@ import { ReactComponent as Can355mlSvg } from "../../assets/images/bottles/355ml
 import { ReactComponent as Pet500mlSvg } from "../../assets/images/bottles/500ml.svg";
 import { ReactComponent as Pet1lSvg } from "../../assets/images/bottles/1l.svg";
 import "../../styles/bottle.css";
-import { DRINK, drinkTypes } from "../../api/DrinkApi";
+import { DRINK, drinkTypes } from "../../api/drink/DrinkApi";
 
 // 병 버튼 컴포넌트
 function BottleButton({

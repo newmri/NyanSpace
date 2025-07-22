@@ -10,10 +10,16 @@ import {
   Stack,
 } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
+import { login } from "../../api/account/LoginApi";
 
 const getInitialErrors = () => ({ email: "", password: "" });
 
-export default function SignInModal({ open, onClose, onSignUp }) {
+export default function SignInModal({
+  open,
+  onClose,
+  onSignUp,
+  onLoginSuccess,
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState(getInitialErrors());
@@ -26,7 +32,7 @@ export default function SignInModal({ open, onClose, onSignUp }) {
     }
   }, [open]);
 
-  const handleSubmit = () => {
+  const isValidLoginForm = () => {
     const newErrors = getInitialErrors();
 
     if (!email) {
@@ -40,14 +46,24 @@ export default function SignInModal({ open, onClose, onSignUp }) {
     }
 
     const hasError = Object.values(newErrors).some((msg) => msg !== "");
-    if (hasError) {
-      setErrors(newErrors);
+    setErrors(newErrors);
+    return !hasError;
+  };
+
+  const handleSubmit = async () => {
+    if (false === isValidLoginForm()) {
       return;
     }
 
-    setErrors({ email: "", password: "" });
-    alert(`로그인 시도: ${email} / ${password}`);
-    onClose();
+    try {
+      const res = await login(email, password);
+      const { account } = res.data;
+      alert(`${account.nickname}님 환영합니다!.`);
+      onLoginSuccess(account);
+      onClose();
+    } catch (err) {
+      alert(err.response.data.error);
+    }
   };
 
   return (

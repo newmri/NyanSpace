@@ -11,7 +11,11 @@ import {
   ReferenceLine,
 } from "recharts";
 import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { HISTORY, drinkTypes, getHistoriesInRange } from "../api/DrinkApi";
+import {
+  HISTORY,
+  drinkTypes,
+  getHistoriesInRange,
+} from "../api/drink/DrinkApi";
 import {
   getDateRange,
   formatDateToLocalYYYYMMDD,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getHistories } from "../api/DrinkApi";
+import { getHistories } from "../api/drink/DrinkApi";
 import { getTodayDate } from "../utils/date";
 
 export const useDrinkData = (config) => {

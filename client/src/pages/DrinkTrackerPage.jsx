@@ -9,7 +9,7 @@ import {
   addHistory,
   updateHistory,
   deleteHistory,
-} from "../api/DrinkApi";
+} from "../api/drink/DrinkApi";
 import DrinkEditGoalModal from "../components/modals/DrinkEditGoalModal";
 import DrinkEditHistoryModal from "../components/modals/DrinkEditHistoryModal";
 
@@ -28,7 +28,6 @@ export default function DrinkTrackerPage() {
 
   const handleAdd = async (type, amount) => {
     try {
-      console.log(type);
       const newHistory = await addHistory(HISTORY.DRINK, { type, amount });
       setHistories((prev) => [...prev, newHistory.data]);
     } catch (err) {

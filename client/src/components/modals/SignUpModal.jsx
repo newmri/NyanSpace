@@ -11,7 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
-import { generateCode, verifyCode, signup } from "../../api/SignUpApi";
+import { generateCode, verifyCode, signup } from "../../api/account/SignUpApi";
 
 const getInitialErrors = () => ({ email: "", nickname: "", password: "" });
 
