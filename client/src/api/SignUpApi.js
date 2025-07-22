@@ -7,3 +7,6 @@ export const generateCode = (nickname, email) =>
 
 export const verifyCode = (uuid, code) =>
   axios.post(`${API_URL}/signup/verify-code/`, { uuid, code });
+
+export const signup = (uuid, nickname, email, password) =>
+  axios.post(`${API_URL}/signup/signup/`, { uuid, nickname, email, password });

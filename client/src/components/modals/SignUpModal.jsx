@@ -11,7 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
-import { generateCode, verifyCode } from "../../api/SignUpApi";
+import { generateCode, verifyCode, signup } from "../../api/SignUpApi";
 
 const getInitialErrors = () => ({ email: "", nickname: "", password: "" });
 
@@ -138,7 +138,7 @@ export default function SignUpModal({ open, onClose }) {
     }
   };
 
-  const handleSubmit = () => {
+  const isValidSignUpForm = () => {
     const newErrors = getInitialErrors();
 
     if (!email) {
@@ -156,8 +156,12 @@ export default function SignUpModal({ open, onClose }) {
     }
 
     const hasError = Object.values(newErrors).some((msg) => msg !== "");
-    if (hasError) {
-      setErrors(newErrors);
+    setErrors(newErrors);
+    return !hasError;
+  };
+
+  const handleSubmit = async () => {
+    if (false === isValidSignUpForm()) {
       return;
     }
 
@@ -166,8 +170,13 @@ export default function SignUpModal({ open, onClose }) {
       return;
     }
 
-    alert(`회원가입 완료: ${email} / ${nickname}`);
-    handleDialogClose(null, null, true);
+    try {
+      await signup(uuid, nickname, email, password);
+      alert(`${nickname}님 환영합니다!.`);
+      handleDialogClose(null, null, true);
+    } catch (err) {
+      alert(err.response.data.error);
+    }
   };
 
   const handleDialogClose = (event, reason, isSuccess = false) => {

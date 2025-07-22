@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const router = express.Router();
 const { sendMail } = require("../services/emailService");
 const redisClient = require("../config/redisClient");
+const Account = require("../models/account/account");
 
 function generateVerificationCode(length = 6) {
   let code = "";
@@ -109,6 +110,51 @@ router.post("/verify-code", async (req, res) => {
     return res
       .status(500)
       .json({ error: "인증 확인 중 서버 오류가 발생했습니다." });
+  }
+});
+
+router.post("/signup", async (req, res) => {
+  const { uuid, nickname, email, password } = req.body;
+
+  if (!uuid || !nickname || !email || !password) {
+    return res.status(400).json({ error: "데이터가 올바르지 않습니다." });
+  }
+
+  const verifiedKey = `verify:verified:${uuid}`;
+
+  try {
+    const savedEmail = await redisClient.get(verifiedKey);
+    if (!savedEmail) {
+      return res.status(410).json({ error: "인증이 만료 되었습니다." });
+    }
+
+    if (email !== savedEmail) {
+      return res
+        .status(401)
+        .json({ error: "이메일이 잘못 되었습니다 다시 인증 해주세요." });
+    }
+
+    const existingEmail = await Account.findOne({ email });
+    if (existingEmail) {
+      return res.status(409).json({ error: "이미 사용 중인 이메일입니다." });
+    }
+
+    const newAccount = new Account({
+      nickname,
+      email,
+      password,
+      lastLoginIP: req.ip,
+    });
+
+    await newAccount.save();
+    await redisClient.del(verifiedKey);
+
+    return res.json({ message: "회원가입 성공" });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ error: "회원가입 중 서버 오류가 발생했습니다." });
   }
 });
 
