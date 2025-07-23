@@ -9,6 +9,7 @@ const signupRoutes = require("./routes/account/signup");
 const loginRoutes = require("./routes/account/login");
 const logoutRoutes = require("./routes/account/logout");
 const sessionRoutes = require("./routes/account/session");
+const resetPasswordRoutes = require("./routes/account/resetpassword");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -43,6 +44,7 @@ app.use("/api/account", signupRoutes);
 app.use("/api/account", loginRoutes);
 app.use("/api/account", logoutRoutes);
 app.use("/api/account", sessionRoutes);
+app.use("/api/account/reset-password", resetPasswordRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

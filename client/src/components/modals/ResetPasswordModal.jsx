@@ -11,24 +11,26 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
-import { generateCode, verifyCode, signup } from "../../api/account/SignUpApi";
+import {
+  generateCode,
+  verifyCode,
+  resetPassword,
+} from "../../api/account/ResetPassword";
 
 const getInitialErrors = () => ({
   email: "",
-  nickname: "",
   password: "",
   passwordConfirm: "",
 });
 
-export default function SignUpModal({
+export default function ResetPasswordModal({
   open,
   onClose,
+  onSignUp,
   onSignIn,
-  onSignupSuccess,
-  onResetPassword,
+  onResetPasswordSuccess,
 }) {
   const [email, setEmail] = useState("");
-  const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
@@ -48,7 +50,6 @@ export default function SignUpModal({
   useEffect(() => {
     if (open) {
       setEmail("");
-      setNickname("");
       setPassword("");
       setPasswordConfirm("");
       setErrors(getInitialErrors());
@@ -87,14 +88,6 @@ export default function SignUpModal({
   }, [resendCooldown]);
 
   const handleGenerateCode = async () => {
-    if (!nickname) {
-      setErrors((prev) => ({
-        ...prev,
-        nickname: "닉네임을 입력해주세요.",
-      }));
-      return;
-    }
-
     if (!email || !validateEmail(email)) {
       setErrors((prev) => ({
         ...prev,
@@ -110,7 +103,7 @@ export default function SignUpModal({
 
     try {
       setLoading(true);
-      const res = await generateCode(nickname, email);
+      const res = await generateCode(email);
       const data = res.data;
 
       setEmailVerified(false);
@@ -151,7 +144,7 @@ export default function SignUpModal({
     }
   };
 
-  const isValidSignUpForm = () => {
+  const isValidResetPasswordForm = () => {
     const newErrors = getInitialErrors();
 
     if (!email) {
@@ -159,24 +152,19 @@ export default function SignUpModal({
     } else if (!validateEmail(email)) {
       newErrors.email = "올바른 이메일 형식을 입력해주세요.";
     }
-
-    if (!nickname) {
-      newErrors.nickname = "닉네임을 입력해주세요.";
-    }
-
     if (!password) {
-      newErrors.password = "비밀번호를 입력해주세요.";
+      newErrors.password = "새 비밀번호를 입력해주세요.";
     }
     if (!passwordConfirm) {
-      newErrors.passwordConfirm = "비밀번호 확인을 입력해주세요.";
+      newErrors.passwordConfirm = "새 비밀번호 확인을 입력해주세요.";
     }
 
     if (password !== passwordConfirm) {
       if (!newErrors.password)
-        newErrors.password = "비밀번호가 일치하지 않습니다.";
+        newErrors.password = "새 비밀번호가 일치하지 않습니다.";
 
       if (!newErrors.passwordConfirm)
-        newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다.";
+        newErrors.passwordConfirm = "새 비밀번호가 일치하지 않습니다.";
     }
 
     const hasError = Object.values(newErrors).some((msg) => msg !== "");
@@ -185,7 +173,7 @@ export default function SignUpModal({
   };
 
   const handleSubmit = async () => {
-    if (false === isValidSignUpForm()) {
+    if (false === isValidResetPasswordForm()) {
       return;
     }
 
@@ -195,8 +183,9 @@ export default function SignUpModal({
     }
 
     try {
-      await signup(uuid, nickname, email, password);
-      onSignupSuccess(nickname);
+      await resetPassword(uuid, email, password);
+      onResetPasswordSuccess();
+      onSignIn();
       onClose();
     } catch (err) {
       alert(err.response.data.error);
@@ -206,7 +195,7 @@ export default function SignUpModal({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
-        회원가입
+        비밀번호 찾기
       </DialogTitle>
       <DialogContent>
         <Box
@@ -219,20 +208,6 @@ export default function SignUpModal({
             gap: 2,
           }}
         >
-          <Stack direction="row" spacing={1}>
-            <TextField
-              label="닉네임"
-              value={nickname}
-              onChange={(e) => {
-                setNickname(e.target.value);
-              }}
-              fullWidth
-              placeholder="물마시는곰돌이"
-              error={!!errors.nickname}
-              helperText={errors.nickname}
-            />
-          </Stack>
-
           <Stack direction="row" spacing={1}>
             <TextField
               label="이메일"
@@ -299,7 +274,7 @@ export default function SignUpModal({
             </>
           )}
           <TextField
-            label="비밀번호"
+            label="새 비밀번호"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -308,7 +283,7 @@ export default function SignUpModal({
             helperText={errors.password}
           />
           <TextField
-            label="비밀번호 확인"
+            label="새 비밀번호 확인"
             type="password"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
@@ -323,7 +298,7 @@ export default function SignUpModal({
             fullWidth
             sx={{ py: 1.5, mt: 1 }}
           >
-            회원가입
+            확인
           </Button>
 
           <Stack
@@ -337,11 +312,11 @@ export default function SignUpModal({
               underline="hover"
               variant="body2"
               onClick={() => {
-                onResetPassword();
+                onSignUp();
                 onClose();
               }}
             >
-              비밀번호 찾기
+              회원가입
             </Link>
             <Link
               component="button"

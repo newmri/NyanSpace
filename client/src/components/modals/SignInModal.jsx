@@ -18,7 +18,8 @@ export default function SignInModal({
   open,
   onClose,
   onSignUp,
-  onLoginSuccess,
+  onSignInSuccess,
+  onResetPassword,
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,8 +59,7 @@ export default function SignInModal({
     try {
       const res = await login(email, password);
       const { account } = res.data;
-      alert(`${account.nickname}님 환영합니다!.`);
-      onLoginSuccess(account);
+      onSignInSuccess(account);
       onClose();
     } catch (err) {
       alert(err.response.data.error);
@@ -120,7 +120,16 @@ export default function SignInModal({
             justifyContent="space-between"
             sx={{ mt: 1, fontSize: "0.875rem" }}
           >
-            <Link href="#" underline="hover" variant="body2">
+            <Link
+              component="button"
+              type="button"
+              underline="hover"
+              variant="body2"
+              onClick={() => {
+                onResetPassword();
+                onClose();
+              }}
+            >
               비밀번호 찾기
             </Link>
             <Link
@@ -129,8 +138,8 @@ export default function SignInModal({
               underline="hover"
               variant="body2"
               onClick={() => {
-                onClose();
                 onSignUp();
+                onClose();
               }}
             >
               회원가입

@@ -21,6 +21,7 @@ import SignInModal from "../components/modals/SignInModal";
 import SignUpModal from "../components/modals/SignUpModal";
 import { logout } from "../api/account/LogoutApi";
 import { getSessionAccount } from "../api/account/SessionApi";
+import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 
 const NAVIGATION = [
   {
@@ -120,6 +121,7 @@ function AppLayout(props) {
 
   const [signInModalOpen, setSignInModalOpen] = useState(false);
   const [signUpModalOpen, setSignUpModalOpen] = useState(false);
+  const [resetPasswordModalOpen, setResetPasswordModalOpen] = useState(false);
   const [account, setAccount] = useState(undefined);
 
   useEffect(() => {
@@ -205,13 +207,29 @@ function AppLayout(props) {
         open={signInModalOpen}
         onClose={() => setSignInModalOpen(false)}
         onSignUp={() => setSignUpModalOpen(true)}
-        onLoginSuccess={(account) => setAccount(account)}
+        onSignInSuccess={(account) => {
+          alert(`${account.nickname}님 환영합니다!`);
+          setAccount(account);
+        }}
+        onResetPassword={() => setResetPasswordModalOpen(true)}
       />
       <SignUpModal
         open={signUpModalOpen}
-        onClose={(isSuccess) => {
-          setSignUpModalOpen(false);
-          if (isSuccess) setSignInModalOpen(true);
+        onClose={() => setSignUpModalOpen(false)}
+        onSignIn={() => setSignInModalOpen(true)}
+        onSignupSuccess={(nickname) => {
+          alert(`${nickname}님 환영합니다!`);
+          setSignInModalOpen(true);
+        }}
+        onResetPassword={() => setResetPasswordModalOpen(true)}
+      />
+      <ResetPasswordModal
+        open={resetPasswordModalOpen}
+        onClose={() => setResetPasswordModalOpen(false)}
+        onSignUp={() => setSignUpModalOpen(true)}
+        onSignIn={() => setSignInModalOpen(true)}
+        onResetPasswordSuccess={() => {
+          alert("비밀번호 변경 완료!");
         }}
       />
     </DemoProvider>
