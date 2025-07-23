@@ -19,6 +19,7 @@ export default function SignUpModal({ open, onClose }) {
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
 
   const [errors, setErrors] = useState(getInitialErrors());
 
@@ -38,6 +39,7 @@ export default function SignUpModal({ open, onClose }) {
       setEmail("");
       setNickname("");
       setPassword("");
+      setPasswordConfirm("");
       setErrors(getInitialErrors());
       setCodeSent(false);
       setEmailVerified(false);
@@ -153,6 +155,17 @@ export default function SignUpModal({ open, onClose }) {
 
     if (!password) {
       newErrors.password = "비밀번호를 입력해주세요.";
+    }
+    if (!passwordConfirm) {
+      newErrors.passwordConfirm = "비밀번호 확인을 입력해주세요.";
+    }
+
+    if (password !== passwordConfirm) {
+      if (!newErrors.password)
+        newErrors.password = "비밀번호가 일치하지 않습니다.";
+
+      if (!newErrors.passwordConfirm)
+        newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다.";
     }
 
     const hasError = Object.values(newErrors).some((msg) => msg !== "");
@@ -287,7 +300,15 @@ export default function SignUpModal({ open, onClose }) {
             error={!!errors.password}
             helperText={errors.password}
           />
-
+          <TextField
+            label="비밀번호 확인"
+            type="password"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+            fullWidth
+            error={!!errors.passwordConfirm}
+            helperText={errors.passwordConfirm}
+          />
           <Button
             variant="contained"
             color="primary"
