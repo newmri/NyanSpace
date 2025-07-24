@@ -7,6 +7,8 @@ import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
+import CalculateIcon from "@mui/icons-material/Calculate";
+import PercentIcon from "@mui/icons-material/Percent";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
@@ -15,6 +17,7 @@ import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
 import { Account } from "@toolpad/core/Account";
 import { DemoProvider, useDemoRouter } from "@toolpad/core/internal";
+import PercentageCalculatorPage from "../pages/PercentageCalculatorPage";
 import DrinkTrackerPage from "../pages/DrinkTrackerPage";
 import DrinkStaticsPage from "../pages/DrinkStaticsPage";
 import SignInModal from "../components/modals/SignInModal";
@@ -27,6 +30,18 @@ const NAVIGATION = [
   {
     kind: "header",
     title: "도구",
+  },
+  {
+    segment: "calculator",
+    title: "계산기",
+    icon: <CalculateIcon />,
+    children: [
+      {
+        segment: "percentage",
+        title: "퍼센트 계산기",
+        icon: <PercentIcon />,
+      },
+    ],
   },
   {
     segment: "drinktracker",
@@ -67,6 +82,9 @@ function DemoPageContent({ pathname, account }) {
   let content;
 
   switch (pathname) {
+    case "/calculator/percentage":
+      content = <PercentageCalculatorPage />;
+      break;
     case "/drinktracker/drink":
       if (!account) {
         content = <Typography>로그인이 필요합니다.</Typography>;
@@ -123,7 +141,7 @@ function CustomAppTitle() {
 function AppLayout(props) {
   const { window } = props;
 
-  const router = useDemoRouter("drinktracker/drink");
+  const router = useDemoRouter("calculator/percentage");
 
   const demoWindow = window !== undefined ? window() : undefined;
 
