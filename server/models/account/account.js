@@ -18,13 +18,13 @@ const AccountSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    lastLoginTime: {
+    lastSignInTime: {
       type: Date,
     },
-    lastLogoutTime: {
+    lastSignOutTime: {
       type: Date,
     },
-    lastLoginIP: {
+    lastSinInIP: {
       type: String,
     },
   },

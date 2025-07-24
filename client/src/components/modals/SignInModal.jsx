@@ -10,7 +10,7 @@ import {
   Stack,
 } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
-import { login } from "../../api/account/LoginApi";
+import { signin } from "../../api/account/SigninApi";
 
 const getInitialErrors = () => ({ email: "", password: "" });
 
@@ -33,7 +33,7 @@ export default function SignInModal({
     }
   }, [open]);
 
-  const isValidLoginForm = () => {
+  const isValidSignInForm = () => {
     const newErrors = getInitialErrors();
 
     if (!email) {
@@ -52,12 +52,12 @@ export default function SignInModal({
   };
 
   const handleSubmit = async () => {
-    if (false === isValidLoginForm()) {
+    if (false === isValidSignInForm()) {
       return;
     }
 
     try {
-      const res = await login(email, password);
+      const res = await signin(email, password);
       const { account } = res.data;
       onSignInSuccess(account);
       onClose();

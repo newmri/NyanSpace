@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const DrinkHistorySchema = new mongoose.Schema(
   {
+    account: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Account",
+      required: true,
+    },
     type: {
       type: String,
       required: true,
@@ -24,6 +29,6 @@ const DrinkHistorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-DrinkHistorySchema.index({ time: 1 });
+DrinkHistorySchema.index({ account: 1, time: 1 });
 
 module.exports = mongoose.model("DrinkHistory", DrinkHistorySchema);

@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const GoalHistorySchema = new mongoose.Schema(
   {
+    account: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Account",
+      required: true,
+    },
     weight: {
       type: Number,
       required: true,
@@ -29,6 +34,6 @@ const GoalHistorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-GoalHistorySchema.index({ time: 1 });
+GoalHistorySchema.index({ account: 1, time: 1 });
 
 module.exports = mongoose.model("GoalHistory", GoalHistorySchema);

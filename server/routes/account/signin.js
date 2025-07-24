@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Account = require("../../models/account/account");
 
-router.post("/login", async (req, res) => {
+router.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -21,10 +21,11 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "비밀번호가 올바르지 않습니다." });
     }
 
-    account.lastLoginTime = new Date();
-    account.lastLoginIP = req.ip;
+    account.lastSignInTime = new Date();
+    account.lastSignInIP = req.ip;
     await account.save();
-    req.session.email = email;
+
+    req.session.accountId = account._id;
 
     return res.json({ account });
   } catch (err) {

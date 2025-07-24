@@ -19,7 +19,7 @@ import DrinkTrackerPage from "../pages/DrinkTrackerPage";
 import DrinkStaticsPage from "../pages/DrinkStaticsPage";
 import SignInModal from "../components/modals/SignInModal";
 import SignUpModal from "../components/modals/SignUpModal";
-import { logout } from "../api/account/LogoutApi";
+import { signout } from "../api/account/SignoutApi";
 import { getSessionAccount } from "../api/account/SessionApi";
 import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 
@@ -63,18 +63,26 @@ const demoTheme = createTheme({
   },
 });
 
-function DemoPageContent({ pathname }) {
+function DemoPageContent({ pathname, account }) {
   let content;
 
   switch (pathname) {
     case "/drinktracker/drink":
-      content = <DrinkTrackerPage />;
+      if (!account) {
+        content = <Typography>로그인이 필요합니다.</Typography>;
+      } else {
+        content = <DrinkTrackerPage />;
+      }
       break;
     case "/drinktracker/statics":
-      content = <DrinkStaticsPage />;
+      if (!account) {
+        content = <Typography>로그인이 필요합니다.</Typography>;
+      } else {
+        content = <DrinkStaticsPage />;
+      }
       break;
     default:
-      content = <Typography>페이지를 찾을 수 없습니다: {pathname}</Typography>;
+      content = <Typography>페이지를 찾을 수 없습니다</Typography>;
   }
 
   return (
@@ -153,7 +161,7 @@ function AppLayout(props) {
               variant="outlined"
               color="secondary"
               sx={{ borderRadius: "20px", textTransform: "none" }}
-              onClick={() => handleLogout()}
+              onClick={() => handleSignOut()}
             >
               로그아웃
             </Button>
@@ -176,9 +184,9 @@ function AppLayout(props) {
     );
   }
 
-  const handleLogout = async () => {
+  const handleSignOut = async () => {
     try {
-      await logout();
+      await signout();
       setAccount(null);
     } catch (err) {
       alert(err.response.data.error);
@@ -200,7 +208,7 @@ function AppLayout(props) {
             sidebarFooter: SidebarFooter,
           }}
         >
-          <DemoPageContent pathname={router.pathname} />
+          <DemoPageContent pathname={router.pathname} account={account} />
         </DashboardLayout>
       </AppProvider>
       <SignInModal

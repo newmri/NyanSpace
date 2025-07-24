@@ -6,8 +6,8 @@ const connectDB = require("./config/db");
 const drinktrackerGoalHistoriesRoutes = require("./routes/drinktracker/histories/goal");
 const drinktrackerDrinkHistoriesRoutes = require("./routes/drinktracker/histories/drink");
 const signupRoutes = require("./routes/account/signup");
-const loginRoutes = require("./routes/account/login");
-const logoutRoutes = require("./routes/account/logout");
+const signinRoutes = require("./routes/account/signin");
+const signoutRoutes = require("./routes/account/signout");
 const sessionRoutes = require("./routes/account/session");
 const resetPasswordRoutes = require("./routes/account/resetpassword");
 
@@ -41,8 +41,8 @@ app.use(
 app.use("/api/drinktracker/histories/goal", drinktrackerGoalHistoriesRoutes);
 app.use("/api/drinktracker/histories/drink", drinktrackerDrinkHistoriesRoutes);
 app.use("/api/account", signupRoutes);
-app.use("/api/account", loginRoutes);
-app.use("/api/account", logoutRoutes);
+app.use("/api/account", signinRoutes);
+app.use("/api/account", signoutRoutes);
 app.use("/api/account", sessionRoutes);
 app.use("/api/account/reset-password", resetPasswordRoutes);
 

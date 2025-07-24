@@ -58,7 +58,7 @@ router.post("/", async (req, res) => {
       nickname,
       email,
       password,
-      lastLoginIP: req.ip,
+      lastSignInIP: req.ip,
     });
     await newAccount.save();
     await clearVerified(uuid);
