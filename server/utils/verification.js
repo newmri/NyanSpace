@@ -40,29 +40,36 @@ function buildHtmlBody({ target, code }) {
 }
 
 async function sendVerificationCode({ email, targetLabel = email }) {
-  const cooldownKey = `verify:cooldown:${email}`;
-  const onCooldown = await redisClient.get(cooldownKey);
-  if (onCooldown) {
-    const cooldownLeft = await redisClient.ttl(cooldownKey);
-    throw {
-      status: 429,
-      error: `인증 요청이 너무 빠릅니다. ${cooldownLeft}초 후 다시 시도하세요.`,
-      cooldownLeft,
-    };
+  try {
+    const cooldownKey = `verify:cooldown:${email}`;
+    const onCooldown = await redisClient.get(cooldownKey);
+    if (onCooldown) {
+      const cooldownLeft = await redisClient.ttl(cooldownKey);
+      throw {
+        status: 429,
+        error: `인증 요청이 너무 빠릅니다. ${cooldownLeft}초 후 다시 시도하세요.`,
+        cooldownLeft,
+      };
+    }
+
+    const uuid = uuidv4();
+    const code = generateVerificationCode();
+
+    await redisClient.set(cooldownKey, "1", { EX: resendCooldown });
+
+    const codeKey = `verify:code:${uuid}`;
+    await redisClient.set(codeKey, JSON.stringify({ email, code }), {
+      EX: ttl,
+    });
+
+    const html = buildHtmlBody({ target: targetLabel, code });
+    await sendMail(email, `NyanSpace 인증코드: ${code}`, html);
+
+    return { uuid, ttl, resendCooldown };
+  } catch (err) {
+    console.error("sendVerificationCode Fail:", err);
+    throw err;
   }
-
-  const uuid = uuidv4();
-  const code = generateVerificationCode();
-
-  await redisClient.set(cooldownKey, "1", { EX: resendCooldown });
-
-  const codeKey = `verify:code:${uuid}`;
-  await redisClient.set(codeKey, JSON.stringify({ email, code }), { EX: ttl });
-
-  const html = buildHtmlBody({ target: targetLabel, code });
-  await sendMail(email, `NyanSpace 인증코드: ${code}`, html);
-
-  return { uuid, ttl, resendCooldown };
 }
 
 async function verifyCode(uuid, inputCode) {
