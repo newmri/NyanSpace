@@ -15,6 +15,11 @@ router.post("/generate-code", async (req, res) => {
   if (!email) return res.status(400).json({ error: "이메일이 필요합니다." });
 
   try {
+    const account = await Account.findOne({ email });
+    if (!account) {
+      return res.status(404).json({ error: "존재하지 않는 이메일입니다." });
+    }
+
     const result = await sendVerificationCode({ email, targetLabel: email });
     res.json(result);
   } catch (err) {

@@ -40,7 +40,7 @@ app.use(
 
 app.use("/api/drinktracker/histories/goal", drinktrackerGoalHistoriesRoutes);
 app.use("/api/drinktracker/histories/drink", drinktrackerDrinkHistoriesRoutes);
-app.use("/api/account", signupRoutes);
+app.use("/api/account/signup", signupRoutes);
 app.use("/api/account", signinRoutes);
 app.use("/api/account", signoutRoutes);
 app.use("/api/account", sessionRoutes);

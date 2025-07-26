@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const Account = require("../../models/account/account");
 const {
   sendVerificationCode,
   verifyCode,
@@ -13,6 +14,11 @@ router.post("/generate-code", async (req, res) => {
     return res.status(400).json({ error: "닉네임과 이메일이 필요합니다." });
 
   try {
+    const account = await Account.findOne({ email });
+    if (account) {
+      return res.status(409).json({ error: "이미 사용 중인 이메일입니다." });
+    }
+
     const result = await sendVerificationCode({ email, targetLabel: nickname });
     res.json(result);
   } catch (err) {
