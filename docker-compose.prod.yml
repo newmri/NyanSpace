@@ -1,0 +1,27 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.prod
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
+    ports:
+      - "80:80"
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.prod
+    # 실제 배포 환경에서 주석 해제
+    # env_file:
+    #   - ./.env
+    ports:
+      - "5000:5000"
+    command: ["node", "index.js"]
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/nyanspace
+      - REDIS_URI=redis://default:${REDIS_PASSWORD}@redis:6379
+      - TZ=Asia/Seoul
+    depends_on:
+      - mongo
+      - redis

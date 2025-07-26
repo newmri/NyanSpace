@@ -1,6 +1,6 @@
 # =============== 공통 ===============
 node_modules/
-.env
+.env*
 *.log
 logs/
 dist/

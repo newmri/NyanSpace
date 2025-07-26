@@ -1,0 +1,29 @@
+# 1단계: 빌드 스테이지
+FROM node:24.4.0 AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
+RUN echo "REACT_APP_API_URL = $REACT_APP_API_URL"
+
+RUN npm run build
+
+# 2단계: 런타임 스테이지
+FROM node:24.4.0
+
+WORKDIR /app
+
+RUN npm install -g serve
+
+COPY --from=build /app/build ./build
+
+EXPOSE 80
+
+CMD ["serve", "-s", "build", "-l", "80"]
