@@ -40,9 +40,17 @@ function restart() {
 }
 
 function pull() {
+  echo "Removing old images (if exist)..."
+  docker image rm -f newmri/nyanspace-client:latest || true
+  docker image rm -f newmri/nyanspace-server:latest || true
+
   echo "Pulling latest images..."
   docker pull newmri/nyanspace-client:latest
   docker pull newmri/nyanspace-server:latest
+
+  echo "Pruning dangling images..."
+  docker image prune -f
+
   echo "Pull complete."
 }
 
