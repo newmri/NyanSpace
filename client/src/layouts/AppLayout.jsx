@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Container, SvgIcon } from "@mui/material";
+import { Container, SvgIcon, useMediaQuery } from "@mui/material";
 import Button from "@mui/material/Button";
 import LoginIcon from "@mui/icons-material/Login";
 import Stack from "@mui/material/Stack";
@@ -182,13 +182,17 @@ function AppLayout(props) {
       return <div style={{ height: "64px" }} />;
     }
 
+    const isSmall = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
     return (
       <Stack direction="row" spacing={1} alignItems="center">
         {account ? (
           <>
-            <Typography sx={{ display: "flex", alignItems: "center" }}>
-              {account.nickname}님
-            </Typography>
+            {!isSmall && account?.nickname && (
+              <Typography sx={{ display: "flex", alignItems: "center" }}>
+                {account.nickname}님
+              </Typography>
+            )}
             <Button
               variant="outlined"
               color="secondary"
