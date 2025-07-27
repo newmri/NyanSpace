@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Container } from "@mui/material";
+import { Container, SvgIcon } from "@mui/material";
 import Button from "@mui/material/Button";
 import LoginIcon from "@mui/icons-material/Login";
 import Stack from "@mui/material/Stack";
-import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import PercentIcon from "@mui/icons-material/Percent";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
-import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
@@ -25,6 +23,17 @@ import SignUpModal from "../components/modals/SignUpModal";
 import { signout } from "../api/account/SignoutApi";
 import { getSessionAccount } from "../api/account/SessionApi";
 import ResetPasswordModal from "../components/modals/ResetPasswordModal";
+import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
+
+function LogoIcon(props) {
+  return (
+    <SvgIcon
+      component={LogoSvg}
+      viewBox="0 0 1024.000000 1024.000000"
+      {...props}
+    />
+  );
+}
 
 const NAVIGATION = [
   {
@@ -71,9 +80,9 @@ const demoTheme = createTheme({
     values: {
       xs: 0,
       sm: 600,
-      md: 600,
-      lg: 1200,
-      xl: 1536,
+      md: 960,
+      lg: 1280,
+      xl: 1920,
     },
   },
 });
@@ -130,10 +139,15 @@ SidebarFooter.propTypes = {
 
 function CustomAppTitle() {
   return (
-    <Stack direction="row" alignItems="center" spacing={2}>
-      <RocketLaunchIcon fontSize="large" color="primary" />
+    <Stack direction="row" alignItems="center" spacing={1}>
+      <LogoIcon
+        fontSize="large"
+        sx={{
+          transform: "scale(2)",
+          transformOrigin: "center",
+        }}
+      />
       <Typography variant="h6">NyanSpace</Typography>
-      <Chip size="small" label="BETA" color="info" />
     </Stack>
   );
 }
@@ -178,6 +192,7 @@ function AppLayout(props) {
             <Button
               variant="outlined"
               color="secondary"
+              size="small"
               sx={{ borderRadius: "20px", textTransform: "none" }}
               onClick={() => handleSignOut()}
             >
@@ -188,6 +203,7 @@ function AppLayout(props) {
           <Button
             variant="contained"
             color="primary"
+            size="small"
             startIcon={<LoginIcon />}
             sx={{ borderRadius: "20px", textTransform: "none" }}
             onClick={() => setSignInModalOpen(true)}
