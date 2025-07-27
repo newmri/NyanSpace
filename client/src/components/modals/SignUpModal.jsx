@@ -142,6 +142,8 @@ export default function SignUpModal({
       await verifyCode(uuid, enteredCode);
       setEmailVerified(true);
       setCodeSent(false);
+      setResendCooldown(0);
+      alert("인증 완료");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         alert(err.response.data.error);
