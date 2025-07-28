@@ -34,7 +34,6 @@ export default function QuotePage() {
           sx={{
             p: 4,
             mx: "auto",
-            maxWidth: 600,
             backgroundColor: "#f9f9f9",
             borderRadius: 4,
             boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
