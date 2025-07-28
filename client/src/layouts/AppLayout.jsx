@@ -6,6 +6,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
+import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import PercentIcon from "@mui/icons-material/Percent";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
@@ -24,6 +25,7 @@ import { signout } from "../api/account/SignoutApi";
 import { getSessionAccount } from "../api/account/SessionApi";
 import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
+import QuotePage from "../pages/QuotePage";
 
 function LogoIcon(props) {
   return (
@@ -39,6 +41,11 @@ const NAVIGATION = [
   {
     kind: "header",
     title: "도구",
+  },
+  {
+    segment: "quote",
+    title: "명언",
+    icon: <FormatQuoteIcon />,
   },
   {
     segment: "calculator",
@@ -91,6 +98,9 @@ function DemoPageContent({ pathname, account }) {
   let content;
 
   switch (pathname) {
+    case "/quote":
+      content = <QuotePage />;
+      break;
     case "/calculator/percentage":
       content = <PercentageCalculatorPage />;
       break;
@@ -155,7 +165,7 @@ function CustomAppTitle() {
 function AppLayout(props) {
   const { window } = props;
 
-  const router = useDemoRouter("calculator/percentage");
+  const router = useDemoRouter("quote");
 
   const demoWindow = window !== undefined ? window() : undefined;
 
