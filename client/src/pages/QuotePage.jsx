@@ -33,9 +33,9 @@ export default function QuotePage() {
       >
         <Card
           sx={{
-            p: 4,
+            px: 1,
+            py: 3,
             mx: "auto",
-            backgroundColor: "#f9f9f9",
             borderRadius: 4,
             boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
             position: "relative",
@@ -53,7 +53,6 @@ export default function QuotePage() {
                     fontStyle: "italic",
                     color: "text.primary",
                     lineHeight: 1.8,
-                    px: 6,
                     fontSize: "1.25rem",
                     userSelect: "none",
                     position: "relative",
@@ -71,7 +70,7 @@ export default function QuotePage() {
                       userSelect: "none",
                       lineHeight: 1,
                       pointerEvents: "none",
-                      transform: "translate(0%, -60%)",
+                      transform: "translate(-100%, -50%)",
                     }}
                   >
                     “
@@ -97,7 +96,7 @@ export default function QuotePage() {
                       userSelect: "none",
                       lineHeight: 1,
                       pointerEvents: "none",
-                      transform: "translate(0%, 60%)",
+                      transform: "translate(100%, 100%)",
                     }}
                   >
                     ”
@@ -109,8 +108,8 @@ export default function QuotePage() {
                   color="text.secondary"
                   sx={{
                     position: "absolute",
-                    bottom: 15,
-                    right: 30,
+                    bottom: 5,
+                    right: 10,
                     userSelect: "none",
                   }}
                 >
