@@ -7,6 +7,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import YouTubeIcon from "@mui/icons-material/YouTube";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import PercentIcon from "@mui/icons-material/Percent";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
@@ -26,6 +27,7 @@ import { getSessionAccount } from "../api/account/SessionApi";
 import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
 import QuotePage from "../pages/QuotePage";
+import YoutubeSearchPage from "../pages/YoutubeSearchPage";
 
 function LogoIcon(props) {
   return (
@@ -46,6 +48,11 @@ const NAVIGATION = [
     segment: "quote",
     title: "명언",
     icon: <FormatQuoteIcon />,
+  },
+  {
+    segment: "youtube",
+    title: "유튜브",
+    icon: <YouTubeIcon />,
   },
   {
     segment: "calculator",
@@ -100,6 +107,9 @@ function DemoPageContent({ pathname, account }) {
   switch (pathname) {
     case "/quote":
       content = <QuotePage />;
+      break;
+    case "/youtube":
+      content = <YoutubeSearchPage />;
       break;
     case "/calculator/percentage":
       content = <PercentageCalculatorPage />;

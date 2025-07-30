@@ -4,6 +4,7 @@ const session = require("express-session");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const quoteRoutes = require("./routes/quote/quote");
+const youtubeRoutes = require("./routes/youtube/youtube");
 const drinktrackerGoalHistoriesRoutes = require("./routes/drinktracker/histories/goal");
 const drinktrackerDrinkHistoriesRoutes = require("./routes/drinktracker/histories/drink");
 const signupRoutes = require("./routes/account/signup");
@@ -40,6 +41,7 @@ app.use(
 );
 
 app.use("/api/quote", quoteRoutes);
+app.use("/api/youtube", youtubeRoutes);
 app.use("/api/drinktracker/histories/goal", drinktrackerGoalHistoriesRoutes);
 app.use("/api/drinktracker/histories/drink", drinktrackerDrinkHistoriesRoutes);
 app.use("/api/account/signup", signupRoutes);
