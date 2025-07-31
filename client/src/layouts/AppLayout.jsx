@@ -13,6 +13,8 @@ import PercentIcon from "@mui/icons-material/Percent";
 import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
+import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
+import CreateIcon from "@mui/icons-material/Create";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
 import { Account } from "@toolpad/core/Account";
@@ -28,6 +30,7 @@ import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
 import QuotePage from "../pages/QuotePage";
 import YoutubeSearchPage from "../pages/YoutubeSearchPage";
+import EmotionDiaryWritePage from "../pages/EmotionDiaryWritePage";
 
 function LogoIcon(props) {
   return (
@@ -67,7 +70,7 @@ const NAVIGATION = [
     ],
   },
   {
-    segment: "drinktracker",
+    segment: "drink-tracker",
     title: "수분 충전소",
     icon: <WaterDropIcon />,
     children: [
@@ -75,6 +78,23 @@ const NAVIGATION = [
         segment: "drink",
         title: "물 마시기",
         icon: <LocalDrinkIcon />,
+      },
+      {
+        segment: "statics",
+        title: "통계",
+        icon: <EqualizerIcon />,
+      },
+    ],
+  },
+  {
+    segment: "emotion-diary",
+    title: "감정 일기장",
+    icon: <EmojiEmotionsIcon />,
+    children: [
+      {
+        segment: "write",
+        title: "작성",
+        icon: <CreateIcon />,
       },
       {
         segment: "statics",
@@ -114,18 +134,25 @@ function DemoPageContent({ pathname, account }) {
     case "/calculator/percentage":
       content = <PercentageCalculatorPage />;
       break;
-    case "/drinktracker/drink":
+    case "/drink-tracker/drink":
       if (!account) {
         content = <Typography>로그인이 필요합니다.</Typography>;
       } else {
         content = <DrinkTrackerPage />;
       }
       break;
-    case "/drinktracker/statics":
+    case "/drink-tracker/statics":
       if (!account) {
         content = <Typography>로그인이 필요합니다.</Typography>;
       } else {
         content = <DrinkStaticsPage />;
+      }
+      break;
+    case "/emotion-diary/write":
+      if (!account) {
+        content = <Typography>로그인이 필요합니다.</Typography>;
+      } else {
+        content = <EmotionDiaryWritePage />;
       }
       break;
     default:
