@@ -75,6 +75,10 @@ export default function SignInModal({
         <Box
           component="form"
           noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
           sx={{
             mt: 1,
             display: "flex",
@@ -106,9 +110,9 @@ export default function SignInModal({
           />
 
           <Button
+            type="submit"
             variant="contained"
             color="primary"
-            onClick={handleSubmit}
             fullWidth
             sx={{ py: 1.5, mt: 1 }}
           >

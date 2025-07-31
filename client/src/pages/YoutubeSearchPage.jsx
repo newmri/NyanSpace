@@ -39,7 +39,7 @@ export default function YoutubeSearchPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearch();
+            if ("Enter" === e.key) handleSearch();
           }}
           size="small"
           fullWidth

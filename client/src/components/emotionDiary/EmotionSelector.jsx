@@ -22,9 +22,9 @@ export default function EmotionSelector({ emotions, selected, onSelect }) {
           >
             <Avatar
               sx={{
-                width: { xs: 35, sm: 52, md: 60, lg: 90, xl: 110 },
-                height: { xs: 35, sm: 52, md: 60, lg: 90, xl: 110 },
-                fontSize: { xs: 25, sm: 37, md: 45, lg: 65, xl: 80 },
+                width: { xs: 33, sm: 52, md: 60, lg: 90, xl: 110 },
+                height: { xs: 33, sm: 52, md: 60, lg: 90, xl: 110 },
+                fontSize: { xs: 23, sm: 37, md: 45, lg: 65, xl: 80 },
                 bgcolor: selectedItem ? "primary.main" : "transparent",
                 color: selectedItem ? "white" : "black",
                 transition: "background-color 0.3s, color 0.3s",
