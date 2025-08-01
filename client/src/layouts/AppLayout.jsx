@@ -30,7 +30,7 @@ import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
 import QuotePage from "../pages/QuotePage";
 import YoutubeSearchPage from "../pages/YoutubeSearchPage";
-import EmotionDiaryWritePage from "../pages/EmotionDiaryWritePage";
+import EmotionDiaryPage from "../pages/EmotionDiaryPage";
 
 function LogoIcon(props) {
   return (
@@ -90,18 +90,6 @@ const NAVIGATION = [
     segment: "emotion-diary",
     title: "감정 일기장",
     icon: <EmojiEmotionsIcon />,
-    children: [
-      {
-        segment: "write",
-        title: "작성",
-        icon: <CreateIcon />,
-      },
-      {
-        segment: "statics",
-        title: "통계",
-        icon: <EqualizerIcon />,
-      },
-    ],
   },
 ];
 
@@ -148,11 +136,11 @@ function DemoPageContent({ pathname, account }) {
         content = <DrinkStaticsPage />;
       }
       break;
-    case "/emotion-diary/write":
+    case "/emotion-diary":
       if (!account) {
         content = <Typography>로그인이 필요합니다.</Typography>;
       } else {
-        content = <EmotionDiaryWritePage />;
+        content = <EmotionDiaryPage />;
       }
       break;
     default:
