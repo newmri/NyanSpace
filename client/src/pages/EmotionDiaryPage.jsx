@@ -41,7 +41,7 @@ export default function EmotionDiaryPage() {
   const handleNext = () => setMonth((m) => (m === 12 ? 1 : m + 1));
 
   return (
-    <Box>
+    <>
       {/* 월 선택 */}
       <Box
         sx={{
@@ -58,6 +58,7 @@ export default function EmotionDiaryPage() {
           aria-label="Previous month"
           size="large"
           sx={{
+            p: 0,
             "&:hover": { bgcolor: "primary.light", color: "primary.main" },
           }}
         >
@@ -77,6 +78,7 @@ export default function EmotionDiaryPage() {
           aria-label="Next month"
           size="large"
           sx={{
+            p: 0,
             "&:hover": { bgcolor: "primary.light", color: "primary.main" },
           }}
         >
@@ -153,6 +155,6 @@ export default function EmotionDiaryPage() {
           </Box>
         );
       })}
-    </Box>
+    </>
   );
 }

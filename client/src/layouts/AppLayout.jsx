@@ -14,7 +14,6 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import LocalDrinkIcon from "@mui/icons-material/LocalDrink";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
-import CreateIcon from "@mui/icons-material/Create";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout, ThemeSwitcher } from "@toolpad/core/DashboardLayout";
 import { Account } from "@toolpad/core/Account";
@@ -148,7 +147,7 @@ function DemoPageContent({ pathname, account }) {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, textAlign: "center" }}>
+    <Container maxWidth="lg" sx={{ py: 2, textAlign: "center" }}>
       {content}
     </Container>
   );
