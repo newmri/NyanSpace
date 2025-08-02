@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const DrinkHistory = require("../../../models/drinktracker/histories/drinkhistory");
 const { requireSignIn } = require("../../middlewares/auth");
+const { parseDateRange } = require("../../../utils/date");
 
 // 기록 조회
 router.get("/", requireSignIn, async (req, res) => {
@@ -10,12 +11,8 @@ router.get("/", requireSignIn, async (req, res) => {
 
     let filter = { account };
     if (req.query.date) {
-      const date = new Date(req.query.date);
-      const start = new Date(date);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(date);
-      end.setHours(23, 59, 59, 999);
-      filter.time = { $gte: start, $lte: end };
+      const range = parseDateRange(req.query.date, req.query.date);
+      filter.time = { $gte: range.startDate, $lte: range.endDate };
     }
 
     const histories = await DrinkHistory.find(filter).sort({ time: 1 });
@@ -31,17 +28,11 @@ router.get("/range", requireSignIn, async (req, res) => {
     const account = req.session.accountId;
 
     const { start, end } = req.query;
-    if (!start || !end) {
-      return res.status(400).json({ message: "start, end 쿼리 필수" });
-    }
-
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    endDate.setHours(23, 59, 59, 999);
+    const range = parseDateRange(start, end);
 
     const histories = await DrinkHistory.find({
       account,
-      time: { $gte: startDate, $lte: endDate },
+      time: { $gte: range.startDate, $lte: range.endDate },
     }).sort({ time: 1 });
 
     res.json(histories);

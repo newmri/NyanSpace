@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const GoalHistory = require("../../../models/drinktracker/histories/goalhistory");
 const { requireSignIn } = require("../../middlewares/auth");
+const { parseDateRange, getTodayDate } = require("../../../utils/date");
 
 // 기록 조회
 router.get("/", requireSignIn, async (req, res) => {
@@ -14,15 +15,11 @@ router.get("/", requireSignIn, async (req, res) => {
       return res.json(latest);
     }
 
-    const date = new Date(req.query.date);
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
+    const range = parseDateRange(req.query.date, req.query.date);
 
     const recordForDate = await GoalHistory.findOne({
       account,
-      time: { $gte: start, $lte: end },
+      time: { $gte: range.startDate, $lte: range.endDate },
     });
 
     if (recordForDate) {
@@ -31,7 +28,7 @@ router.get("/", requireSignIn, async (req, res) => {
 
     const recordBeforeDate = await GoalHistory.findOne({
       account,
-      time: { $lt: start },
+      time: { $lt: range.startDate },
     }).sort({ time: -1 });
 
     return res.json(recordBeforeDate);
@@ -46,22 +43,16 @@ router.get("/range", requireSignIn, async (req, res) => {
     const account = req.session.accountId;
 
     const { start, end } = req.query;
-    if (!start || !end) {
-      return res.status(400).json({ message: "start, end 쿼리 필수" });
-    }
-
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    endDate.setHours(23, 59, 59, 999);
+    const range = parseDateRange(start, end);
 
     const recordsInRange = await GoalHistory.find({
       account,
-      time: { $gte: startDate, $lte: endDate },
+      time: { $gte: range.startDate, $lte: range.endDate },
     }).sort({ time: 1 });
 
     const latestBeforeStart = await GoalHistory.findOne({
       account,
-      time: { $lt: startDate },
+      time: { $lt: range.startDate },
     }).sort({ time: -1 });
 
     res.json({
@@ -80,14 +71,12 @@ router.post("/", requireSignIn, async (req, res) => {
 
     const { weight, goal } = req.body;
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    const todayDate = getTodayDate();
+    const range = parseDateRange(todayDate, todayDate);
 
     let existingRecord = await GoalHistory.findOne({
       account,
-      time: { $gte: todayStart, $lte: todayEnd },
+      time: { $gte: range.startDate, $lte: range.endDate },
     });
 
     if (existingRecord) {
