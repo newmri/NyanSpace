@@ -27,9 +27,7 @@ export function formatTime(isoString) {
   });
 }
 
-export function getDateRange(mode) {
-  const now = new Date();
-
+export function getDateRange(mode, now = new Date()) {
   if ("week" === mode) {
     const day = now.getDay();
     const diffToMonday = day === 0 ? 6 : day - 1;

@@ -4,24 +4,24 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { formatDateToLocalYYYYMMDD, getDateRange } from "../utils/date";
 import {
+  saveEmotionDiary,
   EMOTIONS,
   getEmotionDiaries,
 } from "../api/EmotionDiary/EmotionDiaryApi";
 import { EmotionDiaryModal } from "../components/modals/EmotionDiaryModal";
 
 export default function EmotionDiaryPage() {
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth() + 1);
+  const [date, setDate] = useState(new Date());
   const [emotionDiaries, setEmotionDiaries] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedEmotion, setSelectedEmotion] = useState(null);
+  const [emotion, setEmotion] = useState(null);
   const [diaryText, setDiaryText] = useState("");
 
   const fetchEmotionDiaries = async () => {
     try {
-      const { start, end } = getDateRange("month");
+      const { start, end } = getDateRange("month", date);
       const res = await getEmotionDiaries(start, end);
+
       setEmotionDiaries(res.data);
     } catch (err) {
       console.log(err);
@@ -30,48 +30,79 @@ export default function EmotionDiaryPage() {
 
   useEffect(() => {
     fetchEmotionDiaries();
-  }, []);
+  }, [date]);
 
-  function handleSave(text) {
-    console.log("선택된 감정:", selectedEmotion);
-    console.log("작성된 일기:", text);
+  const handleSave = async (text) => {
+    try {
+      const newEmotionDiary = await saveEmotionDiary(emotion, text);
 
-    setModalOpen(false);
-    setSelectedEmotion(null);
-    setDiaryText("");
-    fetchEmotionDiaries();
-  }
+      setEmotionDiaries((prev) => {
+        const updated = [...prev];
+        const idx = updated.findIndex(
+          (d) =>
+            d.id === newEmotionDiary.data.id ||
+            d._id === newEmotionDiary.data._id
+        );
 
-  const filteredEntries = emotionDiaries.filter((entry) => {
-    const entryDate = new Date(entry.date);
-    return (
-      entryDate.getFullYear() === year && entryDate.getMonth() + 1 === month
-    );
-  });
+        if (-1 !== idx) {
+          updated[idx] = newEmotionDiary.data; // 기존 항목 덮어쓰기
+        } else {
+          updated.push(newEmotionDiary.data); // 새 항목 추가
+        }
+
+        return updated;
+      });
+
+      setModalOpen(false);
+      setEmotion(null);
+      setDiaryText("");
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
 
   const handlePrev = () => {
-    setMonth((prev) => {
-      if (prev === 1) {
-        setYear((y) => y - 1);
-        return 12;
-      }
-      return prev - 1;
+    setDate((prevDate) => {
+      const newDate = new Date(prevDate);
+      newDate.setMonth(newDate.getMonth() - 1);
+      return newDate;
     });
   };
 
   const handleNext = () => {
-    setMonth((prev) => {
-      if (12 === prev) {
-        setYear((y) => y + 1);
-        return 1;
-      }
-      return prev + 1;
+    setDate((prevDate) => {
+      const newDate = new Date(prevDate);
+      newDate.setMonth(newDate.getMonth() + 1);
+      return newDate;
     });
   };
 
   const handleEdit = (id) => {
-    console.log("수정 버튼 클릭됨: ", id);
-    // 수정 페이지로 이동 또는 모달 열기 등 구현 가능
+    const diary = emotionDiaries.find((d) => d.id === id);
+    if (!diary) return;
+
+    setEmotion(diary.emotion);
+    setDiaryText(diary.text);
+    setModalOpen(true);
+  };
+
+  const handleWriteClick = () => {
+    const todayStr = formatDateToLocalYYYYMMDD(new Date());
+    const existingToday = emotionDiaries.find(
+      (d) => formatDateToLocalYYYYMMDD(new Date(d.time)) === todayStr
+    );
+
+    if (existingToday) {
+      if (window.confirm("오늘 일기를 이미 작성했어요. 수정하시겠어요?")) {
+        setEmotion(existingToday.emotion);
+        setDiaryText(existingToday.text);
+        setModalOpen(true);
+      }
+    } else {
+      setEmotion(null);
+      setDiaryText("");
+      setModalOpen(true);
+    }
   };
 
   return (
@@ -104,7 +135,7 @@ export default function EmotionDiaryPage() {
           component="div"
           sx={{ minWidth: 100, textAlign: "center" }}
         >
-          {year}년 {month}월
+          {date.getFullYear()}년 {date.getMonth() + 1}월
         </Typography>
 
         <IconButton
@@ -124,12 +155,12 @@ export default function EmotionDiaryPage() {
         variant="contained"
         fullWidth
         sx={{ mb: 3 }}
-        onClick={() => setModalOpen(true)}
+        onClick={handleWriteClick}
       >
         일기 작성
       </Button>
 
-      {filteredEntries.length === 0 && (
+      {emotionDiaries.length === 0 && (
         <Typography sx={{ textAlign: "center", color: "text.secondary" }}>
           해당 월에 작성된 일기가 없습니다.
         </Typography>
@@ -137,14 +168,19 @@ export default function EmotionDiaryPage() {
 
       <EmotionDiaryModal
         emotions={EMOTIONS}
-        selected={selectedEmotion}
-        onSelect={setSelectedEmotion}
+        selected={emotion}
+        onSelect={setEmotion}
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          setEmotion(null);
+          setDiaryText("");
+        }}
         onSave={handleSave}
+        initialText={diaryText}
       />
 
-      {filteredEntries.map((emotionDiary) => {
+      {emotionDiaries.map((emotionDiary) => {
         const emotion = EMOTIONS[emotionDiary.emotion];
         return (
           <Box
@@ -183,7 +219,7 @@ export default function EmotionDiaryPage() {
                   {emotion?.emoji}
                 </Typography>
                 <Typography sx={{ fontWeight: "bold", mt: 0.5 }}>
-                  {formatDateToLocalYYYYMMDD(emotionDiary.date)}
+                  {formatDateToLocalYYYYMMDD(new Date(emotionDiary.time))}
                 </Typography>
               </Box>
 

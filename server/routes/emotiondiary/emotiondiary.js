@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { requireSignIn } = require("../middlewares/auth");
 const EmotionDiary = require("../../models/emotiondiary/emotiondiary");
-const { parseDateRange } = require("../../utils/date");
+const { parseDateRange, getTodayDate } = require("../../utils/date");
 
 router.get("/", requireSignIn, async (req, res) => {
   try {
@@ -17,6 +17,41 @@ router.get("/", requireSignIn, async (req, res) => {
     }).sort({ time: 1 });
 
     res.json(diariesInRange);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post("/", requireSignIn, async (req, res) => {
+  try {
+    const account = req.session.accountId;
+    const { emotion, text } = req.body;
+
+    const todayDate = getTodayDate();
+    const range = parseDateRange(todayDate, todayDate);
+
+    let existingDiary = await EmotionDiary.findOne({
+      account,
+      time: { $gte: range.startDate, $lte: range.endDate },
+    });
+
+    if (existingDiary) {
+      existingDiary.emotion = emotion;
+      existingDiary.text = text;
+      existingDiary.time = new Date();
+      await existingDiary.save();
+      return res.json(existingDiary);
+    }
+
+    const newDiary = new EmotionDiary({
+      account,
+      emotion,
+      text,
+      time: new Date(),
+    });
+
+    await newDiary.save();
+    res.status(201).json(newDiary);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

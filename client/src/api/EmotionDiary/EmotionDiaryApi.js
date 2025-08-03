@@ -17,3 +17,6 @@ export const getEmotionDiaries = (start, end) => {
     params: { start, end },
   });
 };
+
+export const saveEmotionDiary = (emotion, text) =>
+  axios.post(`${API_URL}/emotiondiary/`, { emotion, text });

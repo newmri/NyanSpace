@@ -48,6 +48,14 @@ export function EmotionDiaryModal({
           value={text}
           onChange={(e) => setText(e.target.value)}
           fullWidth
+          onKeyDown={(e) => {
+            if ("Enter" === e.key && !e.shiftKey) {
+              e.preventDefault();
+              if (selected && "" !== text.trim()) {
+                onSave(text);
+              }
+            }
+          }}
         />
       </DialogContent>
       <DialogActions

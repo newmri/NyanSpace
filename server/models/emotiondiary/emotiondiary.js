@@ -27,4 +27,10 @@ const EmotionDiarySchema = new mongoose.Schema(
 
 EmotionDiarySchema.index({ account: 1, time: 1 });
 
+EmotionDiarySchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.account;
+  return obj;
+};
+
 module.exports = mongoose.model("EmotionDiary", EmotionDiarySchema);
