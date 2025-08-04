@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
 import { signin } from "../../api/account/SigninApi";
+import { useNotification } from "../Notification";
 
 const getInitialErrors = () => ({ email: "", password: "" });
 
@@ -24,6 +25,8 @@ export default function SignInModal({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState(getInitialErrors());
+
+  const { showMessage } = useNotification();
 
   useEffect(() => {
     if (open) {
@@ -62,7 +65,7 @@ export default function SignInModal({
       onSignInSuccess(account);
       onClose();
     } catch (err) {
-      alert(err.response.data.error);
+      showMessage(err.response.data.error, "error");
     }
   };
 

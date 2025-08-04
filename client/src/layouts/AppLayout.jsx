@@ -30,6 +30,7 @@ import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
 import QuotePage from "../pages/QuotePage";
 import YoutubeSearchPage from "../pages/YoutubeSearchPage";
 import EmotionDiaryPage from "../pages/EmotionDiaryPage";
+import { useNotification } from "../components/Notification";
 
 function LogoIcon(props) {
   return (
@@ -187,6 +188,8 @@ function CustomAppTitle() {
 }
 
 function AppLayout(props) {
+  const { showMessage } = useNotification();
+
   const { window } = props;
 
   const router = useDemoRouter("quote");
@@ -261,7 +264,7 @@ function AppLayout(props) {
       await signout();
       setAccount(null);
     } catch (err) {
-      alert(err.response.data.error);
+      showMessage(err.response.data.error, "error");
     }
   };
 
@@ -288,7 +291,7 @@ function AppLayout(props) {
         onClose={() => setSignInModalOpen(false)}
         onSignUp={() => setSignUpModalOpen(true)}
         onSignInSuccess={(account) => {
-          alert(`${account.nickname}님 환영합니다!`);
+          showMessage(`${account.nickname}님 환영합니다!`);
           setAccount(account);
         }}
         onResetPassword={() => setResetPasswordModalOpen(true)}
@@ -298,7 +301,7 @@ function AppLayout(props) {
         onClose={() => setSignUpModalOpen(false)}
         onSignIn={() => setSignInModalOpen(true)}
         onSignupSuccess={(nickname) => {
-          alert(`${nickname}님 환영합니다!`);
+          showMessage(`${nickname}님 환영합니다!`);
           setSignInModalOpen(true);
         }}
         onResetPassword={() => setResetPasswordModalOpen(true)}
@@ -309,7 +312,7 @@ function AppLayout(props) {
         onSignUp={() => setSignUpModalOpen(true)}
         onSignIn={() => setSignInModalOpen(true)}
         onResetPasswordSuccess={() => {
-          alert("비밀번호 변경 완료!");
+          showMessage("비밀번호 변경 완료!");
         }}
       />
     </DemoProvider>

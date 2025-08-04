@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { validateEmail } from "../../utils/validate";
 import { generateCode, verifyCode, signup } from "../../api/account/SignUpApi";
+import { useNotification } from "../Notification";
 
 const getInitialErrors = () => ({
   email: "",
@@ -44,6 +45,8 @@ export default function SignUpModal({
 
   const [loading, setLoading] = useState(false);
 
+  const { showMessage } = useNotification();
+
   // 다이얼로그 열릴 때 초기화
   useEffect(() => {
     if (open) {
@@ -67,7 +70,7 @@ export default function SignUpModal({
     if (codeExpireTime <= 0) {
       setCodeSent(false);
       setUuid(null);
-      alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+      showMessage("인증 시간이 만료되었습니다. 다시 시도해주세요.", "error");
       return;
     }
 
@@ -104,7 +107,7 @@ export default function SignUpModal({
     }
 
     if (resendCooldown > 0) {
-      alert(`${resendCooldown}초 뒤에 다시 시도해주세요.`);
+      showMessage(`${resendCooldown}초 뒤에 다시 시도해주세요.`, "info");
       return;
     }
 
@@ -118,7 +121,7 @@ export default function SignUpModal({
       setUuid(data.uuid);
       setCodeExpireTime(data.ttl);
       setResendCooldown(data.resendCooldown);
-      alert("인증 코드가 전송되었습니다.");
+      showMessage("인증 코드가 전송되었습니다.");
     } catch (err) {
       if (err.response && err.response.data) {
         const { error, cooldownLeft } = err.response.data;
@@ -127,10 +130,10 @@ export default function SignUpModal({
           setCodeSent(true);
           setResendCooldown(cooldownLeft);
         } else {
-          alert(error);
+          showMessage(error, "error");
         }
       } else {
-        alert("인증 코드 요청 중 오류가 발생했습니다.");
+        showMessage("인증 코드 요청 중 오류가 발생했습니다.", "error");
       }
     } finally {
       setLoading(false);
@@ -143,12 +146,12 @@ export default function SignUpModal({
       setEmailVerified(true);
       setCodeSent(false);
       setResendCooldown(0);
-      alert("인증 완료");
+      showMessage("인증 완료");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
-        alert(err.response.data.error);
+        showMessage(err.response.data.error, "error");
       } else {
-        alert("인증 실패");
+        showMessage("인증 실패", "error");
       }
     }
   };
@@ -192,7 +195,7 @@ export default function SignUpModal({
     }
 
     if (!emailVerified) {
-      alert("이메일 인증을 완료해주세요.");
+      showMessage("이메일 인증을 완료해주세요.", "error");
       return;
     }
 
@@ -201,7 +204,7 @@ export default function SignUpModal({
       onSignupSuccess(nickname);
       onClose();
     } catch (err) {
-      alert(err.response.data.error);
+      showMessage(err.response.data.error, "error");
     }
   };
 

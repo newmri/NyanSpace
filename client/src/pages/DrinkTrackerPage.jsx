@@ -12,6 +12,7 @@ import {
 } from "../api/drink/DrinkApi";
 import DrinkEditGoalModal from "../components/modals/DrinkEditGoalModal";
 import DrinkEditHistoryModal from "../components/modals/DrinkEditHistoryModal";
+import { useNotification } from "../components/Notification";
 
 export default function DrinkTrackerPage() {
   const [editGoalModalOpen, setEditGoalModalOpen] = useState(false);
@@ -20,6 +21,8 @@ export default function DrinkTrackerPage() {
   const [histories, setHistories] = useDrinkData(HISTORY.DRINK);
   const [editHistoryModalOpen, setEditHistoryModalOpen] = useState(false);
   const [editHistoryTarget, setEditHistoryTarget] = useState(null);
+
+  const { showMessage } = useNotification();
 
   useEffect(() => {
     const totalAmount = histories.reduce((sum, item) => sum + item.amount, 0);
@@ -31,7 +34,7 @@ export default function DrinkTrackerPage() {
       const newHistory = await addHistory(HISTORY.DRINK, { type, amount });
       setHistories((prev) => [...prev, newHistory.data]);
     } catch (err) {
-      console.error(err);
+      showMessage(err, "error");
     }
   };
 
@@ -54,7 +57,7 @@ export default function DrinkTrackerPage() {
       );
       setEditHistoryModalOpen(false);
     } catch (err) {
-      console.error(err);
+      showMessage(err, "error");
     }
   };
 
@@ -64,7 +67,7 @@ export default function DrinkTrackerPage() {
       await deleteHistory(HISTORY.DRINK, id);
       setHistories((prev) => prev.filter((history) => history._id !== id));
     } catch (err) {
-      console.error(err);
+      showMessage(err, "error");
     }
   };
 
@@ -74,7 +77,7 @@ export default function DrinkTrackerPage() {
       setGoalState({ weight, goal });
       setEditGoalModalOpen(false);
     } catch (err) {
-      console.error(err);
+      showMessage(err, "error");
     }
   };
 

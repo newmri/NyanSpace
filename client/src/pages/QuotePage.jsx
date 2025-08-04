@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography, Button, Stack } from "@mui/material";
 import { motion } from "framer-motion";
 import { getQuote } from "../api/quote/QuoteApi.js";
+import { useNotification } from "../components/Notification.jsx";
 
 export default function QuotePage() {
   const [quote, setQuote] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const { showMessage } = useNotification();
 
   const fetchQuote = async () => {
     setLoading(true);
@@ -14,7 +17,7 @@ export default function QuotePage() {
       const data = res.data;
       setQuote(data);
     } catch (err) {
-      console.error("명언을 가져오지 못했습니다:", err);
+      showMessage("명언을 가져오지 못했습니다", "error");
     }
     setLoading(false);
   };

@@ -57,4 +57,26 @@ router.post("/", requireSignIn, async (req, res) => {
   }
 });
 
+router.delete("/:id", requireSignIn, async (req, res) => {
+  try {
+    const account = req.session.accountId;
+    const { id } = req.params;
+
+    const diary = await EmotionDiary.findOneAndDelete({
+      _id: id,
+      account,
+    });
+
+    if (!diary) {
+      return res
+        .status(404)
+        .json({ message: "Diary not found or not authorized" });
+    }
+
+    res.json({ message: "Diary deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

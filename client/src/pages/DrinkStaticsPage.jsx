@@ -21,10 +21,13 @@ import {
   formatDateToLocalYYYYMMDD,
   getMonthWeekNumber,
 } from "../utils/date";
+import { useNotification } from "../components/Notification";
 
 export default function DrinkStaticsPage() {
   const [viewMode, setViewMode] = useState("week");
   const [rawData, setRawData] = useState([]);
+
+  const { showMessage } = useNotification();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,7 +117,7 @@ export default function DrinkStaticsPage() {
 
         setRawData(Object.values(merged));
       } catch (error) {
-        console.error("데이터 로딩 실패:", error);
+        showMessage("데이터 로딩 실패", "error");
       }
     };
 

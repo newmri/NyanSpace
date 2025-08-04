@@ -4,11 +4,13 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { formatDateToLocalYYYYMMDD, getDateRange } from "../utils/date";
 import {
-  saveEmotionDiary,
   EMOTIONS,
   getEmotionDiaries,
+  saveEmotionDiary,
+  deleteEmotionDiary,
 } from "../api/EmotionDiary/EmotionDiaryApi";
 import { EmotionDiaryModal } from "../components/modals/EmotionDiaryModal";
+import { useNotification } from "../components/Notification";
 
 export default function EmotionDiaryPage() {
   const [date, setDate] = useState(new Date());
@@ -17,6 +19,8 @@ export default function EmotionDiaryPage() {
   const [emotion, setEmotion] = useState(null);
   const [diaryText, setDiaryText] = useState("");
 
+  const { showMessage } = useNotification();
+
   const fetchEmotionDiaries = async () => {
     try {
       const { start, end } = getDateRange("month", date);
@@ -24,7 +28,7 @@ export default function EmotionDiaryPage() {
 
       setEmotionDiaries(res.data);
     } catch (err) {
-      console.log(err);
+      showMessage(err, "error");
     }
   };
 
@@ -57,7 +61,19 @@ export default function EmotionDiaryPage() {
       setEmotion(null);
       setDiaryText("");
     } catch (err) {
-      console.error(err.message);
+      showMessage(err.message, "error");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("정말 삭제하시겠어요?");
+    if (!confirmed) return;
+
+    try {
+      await deleteEmotionDiary(id);
+      setEmotionDiaries((prev) => prev.filter((d) => d._id !== id));
+    } catch (err) {
+      showMessage("삭제 중 오류가 발생했습니다.", "error");
     }
   };
 
@@ -78,7 +94,7 @@ export default function EmotionDiaryPage() {
   };
 
   const handleEdit = (id) => {
-    const diary = emotionDiaries.find((d) => d.id === id);
+    const diary = emotionDiaries.find((d) => d._id === id);
     if (!diary) return;
 
     setEmotion(diary.emotion);
@@ -184,7 +200,7 @@ export default function EmotionDiaryPage() {
         const emotion = EMOTIONS[emotionDiary.emotion];
         return (
           <Box
-            key={emotionDiary.id}
+            key={emotionDiary._id}
             sx={{
               backgroundColor: emotion?.color || "#eee",
               borderRadius: 2,
@@ -225,18 +241,32 @@ export default function EmotionDiaryPage() {
 
               <Typography sx={{ flex: 1 }}>{emotionDiary.text}</Typography>
             </Box>
-            <Button
-              variant="outlined"
-              size="small"
+            <Box
               sx={{
+                display: "flex",
+                gap: 1,
                 mt: { xs: 1, sm: 0 },
                 alignSelf: { xs: "flex-end", sm: "auto" },
-                whiteSpace: "nowrap",
               }}
-              onClick={() => handleEdit(emotionDiary.id)}
             >
-              수정하기
-            </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ whiteSpace: "nowrap" }}
+                onClick={() => handleEdit(emotionDiary._id)}
+              >
+                수정하기
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                sx={{ whiteSpace: "nowrap" }}
+                onClick={() => handleDelete(emotionDiary._id)}
+              >
+                삭제하기
+              </Button>
+            </Box>
           </Box>
         );
       })}
