@@ -18,8 +18,11 @@ export const getEmotionDiaries = (start, end) => {
   });
 };
 
-export const saveEmotionDiary = (emotion, text) =>
-  axios.post(`${API_URL}/emotiondiary/`, { emotion, text });
+export const createEmotionDiary = (emotion, text) =>
+  axios.post(`${API_URL}/emotiondiary`, { emotion, text });
+
+export const updateEmotionDiary = (id, emotion, text) =>
+  axios.put(`${API_URL}/emotiondiary/${id}`, { emotion, text });
 
 export const deleteEmotionDiary = (id) =>
   axios.delete(`${API_URL}/emotiondiary/${id}`);

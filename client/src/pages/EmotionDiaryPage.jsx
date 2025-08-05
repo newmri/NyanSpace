@@ -6,7 +6,8 @@ import { formatDateToLocalYYYYMMDD, getDateRange } from "../utils/date";
 import {
   EMOTIONS,
   getEmotionDiaries,
-  saveEmotionDiary,
+  createEmotionDiary,
+  updateEmotionDiary,
   deleteEmotionDiary,
 } from "../api/EmotionDiary/EmotionDiaryApi";
 import { EmotionDiaryModal } from "../components/modals/EmotionDiaryModal";
@@ -18,6 +19,7 @@ export default function EmotionDiaryPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [emotion, setEmotion] = useState(null);
   const [diaryText, setDiaryText] = useState("");
+  const [editId, setEditId] = useState(null);
 
   const { showMessage } = useNotification();
 
@@ -38,28 +40,27 @@ export default function EmotionDiaryPage() {
 
   const handleSave = async (text) => {
     try {
-      const newEmotionDiary = await saveEmotionDiary(emotion, text);
+      if (editId) {
+        const response = await updateEmotionDiary(editId, emotion, text);
+        setEmotionDiaries((prev) => {
+          return prev.map((diary) =>
+            diary._id === editId ? response.data : diary
+          );
+        });
+      } else {
+        const response = await createEmotionDiary(emotion, text);
 
-      setEmotionDiaries((prev) => {
-        const updated = [...prev];
-        const idx = updated.findIndex(
-          (d) =>
-            d.id === newEmotionDiary.data.id ||
-            d._id === newEmotionDiary.data._id
-        );
-
-        if (-1 !== idx) {
-          updated[idx] = newEmotionDiary.data; // 기존 항목 덮어쓰기
-        } else {
-          updated.push(newEmotionDiary.data); // 새 항목 추가
-        }
-
-        return updated;
-      });
+        setEmotionDiaries((prev) => {
+          const updated = [...prev];
+          updated.push(response.data);
+          return updated;
+        });
+      }
 
       setModalOpen(false);
       setEmotion(null);
       setDiaryText("");
+      setEditId(null);
     } catch (err) {
       showMessage(err.message, "error");
     }
@@ -97,6 +98,7 @@ export default function EmotionDiaryPage() {
     const diary = emotionDiaries.find((d) => d._id === id);
     if (!diary) return;
 
+    setEditId(id);
     setEmotion(diary.emotion);
     setDiaryText(diary.text);
     setModalOpen(true);
@@ -113,11 +115,13 @@ export default function EmotionDiaryPage() {
         setEmotion(existingToday.emotion);
         setDiaryText(existingToday.text);
         setModalOpen(true);
+        setEditId(existingToday._id);
       }
     } else {
       setEmotion(null);
       setDiaryText("");
       setModalOpen(true);
+      setEditId(null);
     }
   };
 
@@ -191,6 +195,7 @@ export default function EmotionDiaryPage() {
           setModalOpen(false);
           setEmotion(null);
           setDiaryText("");
+          setEditId(null);
         }}
         onSave={handleSave}
         initialText={diaryText}

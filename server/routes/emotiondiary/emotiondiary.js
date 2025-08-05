@@ -30,17 +30,15 @@ router.post("/", requireSignIn, async (req, res) => {
     const todayDate = getTodayDate();
     const range = parseDateRange(todayDate, todayDate);
 
-    let existingDiary = await EmotionDiary.findOne({
+    const existingDiary = await EmotionDiary.findOne({
       account,
       time: { $gte: range.startDate, $lte: range.endDate },
     });
 
     if (existingDiary) {
-      existingDiary.emotion = emotion;
-      existingDiary.text = text;
-      existingDiary.time = new Date();
-      await existingDiary.save();
-      return res.json(existingDiary);
+      return res
+        .status(400)
+        .json({ message: "오늘 일기를 이미 작성했습니다." });
     }
 
     const newDiary = new EmotionDiary({
@@ -52,6 +50,32 @@ router.post("/", requireSignIn, async (req, res) => {
 
     await newDiary.save();
     res.status(201).json(newDiary);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put("/:id", requireSignIn, async (req, res) => {
+  try {
+    const account = req.session.accountId;
+    const { id } = req.params;
+    const { emotion, text } = req.body;
+
+    const diary = await EmotionDiary.findOne({
+      _id: id,
+      account,
+    });
+
+    if (!diary) {
+      return res.status(404).json({ message: "해당 일기를 찾을 수 없습니다." });
+    }
+
+    diary.emotion = emotion;
+    diary.text = text;
+
+    await diary.save();
+
+    res.json(diary);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
