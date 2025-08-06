@@ -40,18 +40,24 @@ export default function DrinkStaticsPage() {
           getHistoriesInRange(HISTORY.GOAL, start, end),
         ]);
 
-        const drinks = drinkRes.data; // [{ type, amount, time }]
+        const drinks = drinkRes.data;
         const { latestBeforeStart, recordsInRange } = goalRes.data;
 
-        // 1) 기간 내 goal 기록 + 기간 이전 최신 goal 기록 합치기
         const allGoals = [];
-
         if (latestBeforeStart) {
-          allGoals.push(latestBeforeStart);
+          const isDuplicate = recordsInRange.some(
+            (rec) =>
+              formatDateToLocalYYYYMMDD(new Date(rec.time)) ===
+              formatDateToLocalYYYYMMDD(new Date(latestBeforeStart.time))
+          );
+          if (!isDuplicate) {
+            allGoals.push(latestBeforeStart);
+          }
         }
         allGoals.push(...recordsInRange);
 
-        // 2) 요청 날짜 범위 모든 날짜 배열 생성
+        console.log(allGoals);
+        // 날짜 리스트 만들기
         const startDate = new Date(start);
         const endDate = new Date(end);
         const dateList = [];
@@ -63,31 +69,33 @@ export default function DrinkStaticsPage() {
           dateList.push(new Date(d));
         }
 
-        // 3) goal 기록을 날짜 문자열(key)별 맵으로 만듦
-        const goalsByDate = {};
-        allGoals.forEach(({ time, goal, weight }) => {
-          const dateStr = formatDateToLocalYYYYMMDD(new Date(time));
-          goalsByDate[dateStr] = { goal, weight };
-        });
+        // goal 시간순 정렬 후 날짜별로 가장 최근 goal 찾기
+        const sortedGoals = [...allGoals].sort(
+          (a, b) => new Date(a.time) - new Date(b.time)
+        );
 
-        // 4) 누락된 날짜 보간
         const resultGoals = [];
-        let lastKnownGoal = null;
+        let goalIndex = 0;
+        let lastKnownGoal = { goal: 0, weight: 0 };
+
         dateList.forEach((dateObj) => {
-          const dateStr = formatDateToLocalYYYYMMDD(dateObj);
-          if (goalsByDate[dateStr]) {
-            lastKnownGoal = goalsByDate[dateStr];
-            resultGoals.push({ ...lastKnownGoal, time: dateObj });
-          } else if (lastKnownGoal) {
-            // 이전 known goal을 복사해서 시간만 현재 날짜로 바꿈
-            resultGoals.push({ ...lastKnownGoal, time: dateObj });
-          } else {
-            // 초기값 없으면 기본값 넣기
-            resultGoals.push({ goal: 0, weight: 0, time: dateObj });
+          const currentDate = new Date(formatDateToLocalYYYYMMDD(dateObj));
+
+          while (
+            goalIndex < sortedGoals.length &&
+            new Date(sortedGoals[goalIndex].time) <= currentDate
+          ) {
+            lastKnownGoal = {
+              goal: sortedGoals[goalIndex].goal,
+              weight: sortedGoals[goalIndex].weight,
+            };
+            goalIndex++;
           }
+
+          resultGoals.push({ ...lastKnownGoal, time: currentDate });
         });
 
-        // 5) drinks 데이터 기준으로 날짜별 음료량 합산 준비
+        // 날짜별 병합 데이터 구조 초기화
         const merged = {};
         dateList.forEach((dateObj) => {
           const dateStr = formatDateToLocalYYYYMMDD(dateObj);
@@ -97,7 +105,7 @@ export default function DrinkStaticsPage() {
           });
         });
 
-        // 6) 보간한 goal 기록 반영
+        // 보간된 goal 반영
         resultGoals.forEach(({ time, goal, weight }) => {
           const dateStr = formatDateToLocalYYYYMMDD(new Date(time));
           if (merged[dateStr]) {
@@ -106,7 +114,7 @@ export default function DrinkStaticsPage() {
           }
         });
 
-        // 7) 음료 기록 병합
+        // 음료 데이터 반영
         drinks.forEach(({ time, type, amount }) => {
           const dateStr = formatDateToLocalYYYYMMDD(new Date(time));
           if (!merged[dateStr]) return;
@@ -116,6 +124,7 @@ export default function DrinkStaticsPage() {
         });
 
         setRawData(Object.values(merged));
+        console.log(Object.values(merged));
       } catch (error) {
         showMessage("데이터 로딩 실패", "error");
       }
@@ -123,12 +132,12 @@ export default function DrinkStaticsPage() {
 
     fetchData();
   }, [viewMode]);
+
   const handleModeChange = (_, newMode) => {
     if (newMode !== null) setViewMode(newMode);
   };
 
   const chartData = useMemo(() => {
-    // groupByKey 함수: period별 그룹화 기준
     const groupByKey = (date) => {
       const d = new Date(date);
       if ("year" === viewMode) return d.getFullYear().toString();
@@ -151,36 +160,41 @@ export default function DrinkStaticsPage() {
     rawData.forEach((entry) => {
       const key = groupByKey(entry.date);
       if (!grouped[key]) {
-        grouped[key] = { period: key, goal: 0 };
+        grouped[key] = {
+          period: key,
+          goalSum: 0,
+          drinkSum: 0,
+        };
         drinkTypes.forEach(({ type }) => {
           grouped[key][type] = 0;
         });
       }
-      grouped[key].goal += entry.goal;
+
+      grouped[key].goalSum += entry.goal;
+
       drinkTypes.forEach(({ type }) => {
         grouped[key][type] += entry[type] || 0;
+        grouped[key].drinkSum += entry[type] || 0;
       });
     });
 
-    return Object.values(grouped).map(({ period, goal, ...drinks }) => {
-      const total = drinkTypes.reduce(
-        (sum, { type }) => sum + (drinks[type] || 0),
-        0
-      );
-      const rate = goal > 0 ? total / goal : 0;
+    return Object.values(grouped).map(
+      ({ period, goalSum, drinkSum, ...drinks }) => {
+        const rate = goalSum > 0 ? drinkSum / goalSum : 0;
 
-      const percentData = {};
-      drinkTypes.forEach(({ type }) => {
-        percentData[`${type}Percent`] =
-          total > 0 ? ((drinks[type] || 0) / total) * rate : 0;
-      });
+        const percentData = {};
+        drinkTypes.forEach(({ type }) => {
+          percentData[`${type}Percent`] =
+            drinkSum > 0 ? (drinks[type] / drinkSum) * rate : 0;
+        });
 
-      return {
-        period,
-        totalRate: rate,
-        ...percentData,
-      };
-    });
+        return {
+          period,
+          totalRate: rate,
+          ...percentData,
+        };
+      }
+    );
   }, [rawData, viewMode]);
 
   return (
