@@ -56,7 +56,6 @@ export default function DrinkStaticsPage() {
         }
         allGoals.push(...recordsInRange);
 
-        console.log(allGoals);
         // 날짜 리스트 만들기
         const startDate = new Date(start);
         const endDate = new Date(end);
@@ -124,7 +123,6 @@ export default function DrinkStaticsPage() {
         });
 
         setRawData(Object.values(merged));
-        console.log(Object.values(merged));
       } catch (error) {
         showMessage("데이터 로딩 실패", "error");
       }
