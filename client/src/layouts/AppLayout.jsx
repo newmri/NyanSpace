@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import TableChartIcon from "@mui/icons-material/TableChart";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import PercentIcon from "@mui/icons-material/Percent";
@@ -29,7 +30,7 @@ import { getSessionAccount } from "../api/account/SessionApi";
 import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
 import QuotePage from "../pages/QuotePage";
-import ExcelPage from "../pages/ExcelPage";
+import ExcelConveterToPage from "../pages/ExcelConveterToPage";
 import YoutubeSearchPage from "../pages/YoutubeSearchPage";
 import EmotionDiaryPage from "../pages/EmotionDiaryPage";
 import { useNotification } from "../components/Notification";
@@ -54,10 +55,17 @@ const NAVIGATION = [
     title: "명언",
     icon: <FormatQuoteIcon />,
   },
-  {
-    segment: "excel",
-    title: "엑셀",
+    {
+    segment: "excel-converter",
+    title: "엑셀 변환기",
     icon: <TableChartIcon />,
+    children: [
+      {
+        segment: "to",
+        title: "TO JSON & CSV",
+        icon: <ArrowForwardIosIcon />,
+      },
+    ],
   },
   {
     segment: "youtube",
@@ -123,8 +131,8 @@ function DemoPageContent({ pathname, account }) {
     case "/quote":
       content = <QuotePage />;
       break;
-    case "/excel":
-      content = <ExcelPage />;
+    case "/excel-converter/to":
+      content = <ExcelConveterToPage />;
       break;
     case "/youtube":
       content = <YoutubeSearchPage />;
