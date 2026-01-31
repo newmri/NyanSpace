@@ -1,3 +1,11 @@
+개발 환경
+front: react, mui
+back: express, mongo, redis
+
+개발시 필요
+1. 도커 데스크탑 설치
+2. VS Code 설치
+
 배포시 설정 사항
 
 1. docker-compose.prod.yml, docker-compose.yml, run.sh, server안에 있는 .env를 배포 머신에 복사
