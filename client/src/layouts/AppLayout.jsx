@@ -7,6 +7,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import TableChartIcon from "@mui/icons-material/TableChart";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import PercentIcon from "@mui/icons-material/Percent";
@@ -28,6 +29,7 @@ import { getSessionAccount } from "../api/account/SessionApi";
 import ResetPasswordModal from "../components/modals/ResetPasswordModal";
 import { ReactComponent as LogoSvg } from "../assets/images/logo/logo.svg";
 import QuotePage from "../pages/QuotePage";
+import ExcelPage from "../pages/ExcelPage";
 import YoutubeSearchPage from "../pages/YoutubeSearchPage";
 import EmotionDiaryPage from "../pages/EmotionDiaryPage";
 import { useNotification } from "../components/Notification";
@@ -51,6 +53,11 @@ const NAVIGATION = [
     segment: "quote",
     title: "명언",
     icon: <FormatQuoteIcon />,
+  },
+  {
+    segment: "excel",
+    title: "엑셀",
+    icon: <TableChartIcon />,
   },
   {
     segment: "youtube",
@@ -115,6 +122,9 @@ function DemoPageContent({ pathname, account }) {
   switch (pathname) {
     case "/quote":
       content = <QuotePage />;
+      break;
+    case "/excel":
+      content = <ExcelPage />;
       break;
     case "/youtube":
       content = <YoutubeSearchPage />;
