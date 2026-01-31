@@ -2,6 +2,8 @@ services:
   client:
     build: ./client
     image: newmri/nyanspace-client:latest
+    ports:
+      - "3000:3000"
     environment:
       - TZ=Asia/Seoul
     depends_on:
@@ -10,6 +12,8 @@ services:
   server:
     build: ./server
     image: newmri/nyanspace-server:latest
+    ports:
+      - "5000:5000"
     environment:
       - MONGO_URI=mongodb://mongo:27017/nyanspace
       - REDIS_URI=redis://default:${REDIS_PASSWORD}@redis:6379
