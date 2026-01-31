@@ -1,6 +1,6 @@
 개발 환경
 front: react, mui
-back: express, mongo, redis
+back: node.js, express, mongo, redis
 
 개발시 필요
 1. 도커 데스크탑 설치
