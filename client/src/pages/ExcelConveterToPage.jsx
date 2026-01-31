@@ -23,45 +23,95 @@ export default function ExcelConveterToPage() {
     csv: true,
   });
 
-  // 파일 필터링
+  // ================= 파일 필터링 =================
   const filterFiles = (fileList) => {
-    const filtered = Array.from(fileList).filter((f) => {
-      const ext = f.name.split(".").pop().toLowerCase();
+    const allFiles = Array.from(fileList);
+    const filtered = allFiles.filter((f) => {
+      const fileName = f.name.split("/").pop(); // 경로 포함돼도 마지막 파일 이름만
+      const ext = fileName.split(".").pop().toLowerCase();
       return allowedExtensions.includes(ext);
     });
 
     if (filtered.length === 0) {
-      setError(`엑셀 파일(.${allowedExtensions.join(",.")})만 업로드 가능합니다.`);
-      setFiles([]);
-    } else {
-      setError("");
-      setFiles(filtered);
+      setError(
+        `엑셀 파일(.${allowedExtensions.join(",.")})만 업로드 가능합니다.`,
+      );
+      return;
     }
+
+    setError("");
+    setFiles((prevFiles) => {
+      const merged = [...prevFiles, ...filtered];
+      // 중복 제거 (이름+크기 기준)
+      const unique = merged.filter(
+        (file, index, self) =>
+          index ===
+          self.findIndex((f) => f.name === file.name && f.size === file.size),
+      );
+      return unique;
+    });
   };
 
-  // 드래그 앤 드롭
-  const handleDrop = (e) => {
+  // ================= 드래그 & 드롭 =================
+  const handleDrop = async (e) => {
     e.preventDefault();
     setDragOver(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      filterFiles(e.dataTransfer.files);
+    const items = e.dataTransfer.items;
+    if (!items) return;
+
+    const fileEntries = [];
+
+    const traverseFileTree = (item, path = "") => {
+      return new Promise((resolve) => {
+        if (item.isFile) {
+          item.file((file) => {
+            fileEntries.push(file);
+            resolve();
+          });
+        } else if (item.isDirectory) {
+          const dirReader = item.createReader();
+          dirReader.readEntries(async (entries) => {
+            for (const entry of entries) {
+              await traverseFileTree(entry, path + item.name + "/");
+            }
+            resolve();
+          });
+        }
+      });
+    };
+
+    // 모든 드롭된 항목에 대해 처리
+    const promises = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i].webkitGetAsEntry();
+      if (item) {
+        promises.push(traverseFileTree(item));
+      }
+    }
+
+    await Promise.all(promises);
+
+    if (fileEntries.length > 0) {
+      filterFiles(fileEntries);
     }
   };
 
-  // 파일 선택
+  // ================= 파일 선택 =================
   const handleFileChange = (e) => {
     if (!e.target.files) return;
     filterFiles(e.target.files);
   };
 
-  // 공통 다운로드 함수
+  // ================= 엑셀 변환 =================
   const downloadSheet = (worksheet, sheetName, type) => {
     let blob, fileName;
 
     if (type === "json") {
       const json = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-      blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
+      blob = new Blob([JSON.stringify(json, null, 2)], {
+        type: "application/json",
+      });
       fileName = `${sheetName}.json`;
     } else if (type === "csv") {
       const csv = XLSX.utils.sheet_to_csv(worksheet);
@@ -76,7 +126,6 @@ export default function ExcelConveterToPage() {
     link.click();
   };
 
-  // 파일 변환
   const handleConvert = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -94,9 +143,9 @@ export default function ExcelConveterToPage() {
     reader.readAsArrayBuffer(file);
   };
 
+  // ================= 렌더링 =================
   return (
     <Stack alignItems="center" spacing={4} sx={{ p: 2 }}>
-      {/* 업로드 카드 */}
       <Card
         onDragOver={(e) => {
           e.preventDefault();
@@ -133,26 +182,32 @@ export default function ExcelConveterToPage() {
           accept={acceptString}
           onChange={handleFileChange}
         />
-        <label htmlFor="upload-single-file">
-          <Button variant="contained" component="span">
-            파일 업로드
-          </Button>
-        </label>
+        <Button
+          variant="contained"
+          onClick={() => document.getElementById("upload-single-file").click()}
+        >
+          파일 업로드
+        </Button>
 
         {/* 폴더 업로드 */}
         <input
           type="file"
           style={{ display: "none" }}
           id="upload-folder"
-          webkitdirectory
+          webkitdirectory=""
+          directory=""
           multiple
           onChange={handleFileChange}
         />
-        <label htmlFor="upload-folder">
-          <Button variant="outlined" component="span">
-            폴더 업로드
-          </Button>
-        </label>
+        <Button
+          variant="outlined"
+          onClick={(e) => {
+            e.stopPropagation();
+            document.getElementById("upload-folder").click();
+          }}
+        >
+          폴더 업로드
+        </Button>
 
         {/* 변환 옵션 */}
         <Stack direction="row" spacing={2} mt={1}>
@@ -161,7 +216,10 @@ export default function ExcelConveterToPage() {
               <Checkbox
                 checked={convertOptions.json}
                 onChange={(e) =>
-                  setConvertOptions((prev) => ({ ...prev, json: e.target.checked }))
+                  setConvertOptions((prev) => ({
+                    ...prev,
+                    json: e.target.checked,
+                  }))
                 }
               />
             }
@@ -172,7 +230,10 @@ export default function ExcelConveterToPage() {
               <Checkbox
                 checked={convertOptions.csv}
                 onChange={(e) =>
-                  setConvertOptions((prev) => ({ ...prev, csv: e.target.checked }))
+                  setConvertOptions((prev) => ({
+                    ...prev,
+                    csv: e.target.checked,
+                  }))
                 }
               />
             }
@@ -192,10 +253,8 @@ export default function ExcelConveterToPage() {
           {error
             ? error
             : files.length > 0
-            ? `선택된 파일: ${files.map((f) => f.name).join(", ")}`
-            : `폴더나 엑셀 파일(.${allowedExtensions.join(
-                ",."
-              )})을 드래그하거나 클릭하세요`}
+              ? `선택된 파일: ${files.map((f) => f.name).join(", ")}`
+              : `폴더나 엑셀 파일(.${allowedExtensions.join(",.")})을 드래그하거나 클릭하세요`}
         </Typography>
 
         {/* 파일 리스트 */}
@@ -205,7 +264,11 @@ export default function ExcelConveterToPage() {
               {files.map((f, idx) => (
                 <ListItem key={idx} sx={{ py: 0.5 }}>
                   {f.name}
-                  <Button size="small" sx={{ ml: 2 }} onClick={() => handleConvert(f)}>
+                  <Button
+                    size="small"
+                    sx={{ ml: 2 }}
+                    onClick={() => handleConvert(f)}
+                  >
                     변환
                   </Button>
                 </ListItem>
