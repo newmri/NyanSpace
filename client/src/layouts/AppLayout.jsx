@@ -129,7 +129,72 @@ const demoTheme = createTheme({
       xl: 1920,
     },
   },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        body {
+          cursor: url("/cursor_normal.png") 32 32, auto !important;
+        }
+
+        /* 모든 상호작용 요소에 발바닥 적용 */
+        button, a, input, select, label, 
+        .MuiButtonBase-root, .MuiListItemButton-root,
+        .MuiFormControlLabel-root, .MuiToggleButton-root,
+        .MuiSvgIcon-root, [role="button"], [role="checkbox"],
+        [role="radio"], [role="tab"], [role="menuitem"] {
+          cursor: url("/cursor_hover.png") 32 32, pointer !important;
+        }
+
+        /* 체크박스/라디오 버튼 내부의 실제 input 커서 상속 */
+        .MuiButtonBase-root input {
+          cursor: inherit !important;
+        }
+
+        /* 상호작용 요소들의 공통 트랜지션 (솜방망이처럼 부드럽게) */
+        .MuiButtonBase-root, .MuiFormControlLabel-root {
+          transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+
+        /* 텍스트 입력창은 고양이가 '글씨를 가리지 않게' 기본 커서 유지 */
+        input[type="text"], input[type="password"], textarea, .MuiInputBase-input {
+          cursor: text !important;
+        }
+          
+        /* 클릭 시 전체적인 피드백 (active 상태) */
+        .MuiButtonBase-root:active {
+          transform: scale(0.9) rotate(-1deg) !important;
+          filter: brightness(0.9) contrast(1.1); /* 젤리를 꾹 누른 듯한 색감 */
+        }
+      `,
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          "&:hover": {
+            transform: "scale(1.03)",
+            letterSpacing: "0.5px",
+            // 핑크색 젤리 광택 효과 추가
+            boxShadow: "0 4px 12px rgba(255, 182, 193, 0.3)", 
+          },
+        },
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          "&:hover": {
+            transform: "scale(1.1) rotate(-5deg)",
+          },
+          // 체크될 때 '냥!' 하고 커지는 애니메이션
+          "&.Mui-checked": {
+            animation: "paw-punch 0.3s ease-in-out",
+          },
+        },
+      },
+    },
+  },
 });
+
 
 function DemoPageContent({ pathname, account }) {
   let content;
